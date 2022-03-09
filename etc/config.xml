@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <default>
+            <skroutz>
+                <feed>
+                    <enable>1</enable>
+                </feed>
+            </skroutz>
+            <spirit_skroutz>
+                <feed_settings>
+                    <status>1</status>
+                    <filename>skroutz</filename>
+                    <exclude_disabled>1</exclude_disabled>
+                    <exclude_outofstock>1</exclude_outofstock>
+                    <exclude_not_visible>1</exclude_not_visible>
+                </feed_settings>
+            </spirit_skroutz>
+        </default>
+    </default>
+</config>
