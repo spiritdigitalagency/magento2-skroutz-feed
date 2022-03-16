@@ -1,3 +1,5 @@
+> :warning: **This module is still under development, do not use it in production websites**
+
 # Mage2 Module Spirit SkroutzFeed
 
     ``spirit/module-skroutzfeed``
