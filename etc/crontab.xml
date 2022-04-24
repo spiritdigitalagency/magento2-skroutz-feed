@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
 	<group id="default">
 		<job name="spirit_skroutzfeed_generatefeed" instance="Spirit\SkroutzFeed\Cron\GenerateFeed" method="execute">
-			<schedule>0 * * * *</schedule>
+			<schedule>skroutz/feed/schedule/cron_expr</schedule>
 		</job>
 	</group>
 </config>

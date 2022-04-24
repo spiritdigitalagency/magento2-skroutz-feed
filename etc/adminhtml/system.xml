@@ -1,57 +1,196 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <section id="skroutz" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Skroutz Feed</label>
-            <tab>sp_settings</tab>
-            <resource>Spirit_SkroutzFeed::config</resource>
-            <group id="feed" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Cron Settings</label>
-                <field id="frequency" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Frequency</label>
-                    <source_model>Magento\Cron\Model\Config\Source\Frequency</source_model>
-                    <backend_model>Spirit\SkroutzFeed\Model\Config\CronConfig</backend_model>
-                </field>
-                <field id="time" translate="label" type="time" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Start Time</label>
-                </field>
-            </group>
-        </section>
         <section id="spirit_skroutz" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
             <label>Skroutz</label>
             <tab>sp_settings</tab>
             <resource>Spirit_SkroutzFeed::config_spirit_skroutzfeed</resource>
-            <group id="feed_settings" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+            <group id="feed_settings" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                 <label>XML Feed Settings</label>
                 <field id="status" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                     <label>Enabled</label>
                     <comment/>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="filename" type="text" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                <field id="frequency" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Frequency</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\Frequency</source_model>
+                    <backend_model>Spirit\SkroutzFeed\Model\Config\CronConfig</backend_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
+                </field>
+                <field id="time" translate="label" type="time" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Start Time</label>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
+                </field>
+                <field id="filename" type="text" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                     <label>Filename</label>
                     <comment/>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
                 </field>
-                <field id="exclude_disabled" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                <field id="exclude_disabled" type="select" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                     <label>Exclude Disabled Products</label>
                     <comment/>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
                 </field>
-                <field id="exclude_outofstock" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                <field id="exclude_outofstock" type="select" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                     <label>Exclude Out of Stock Products</label>
                     <comment/>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
                 </field>
-                <field id="exclude_not_visible" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>exclude_not_visible</label>
+                <field id="exclude_not_visible" type="select" sortOrder="50" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                    <label>Exclude not Visible Products</label>
                     <comment/>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
                 </field>
-<!--                <field id="exclude_categories" type="multiselect" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">-->
-<!--                    <label>Exclude Categories</label>-->
-<!--                    <comment/>-->
-<!--                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\ExcludeCategories</source_model>-->
-<!--                </field>-->
+                <field id="exclude_categories" type="multiselect" sortOrder="60" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                    <label>Exclude Categories</label>
+                    <comment/>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\ExcludeCategories</source_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="feed_mappings" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                <label>XML Feed Mappings</label>
+                <field id="availability_mapping"
+                       translate="label"
+                       type="radios"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Availability Mapping</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\MappingValue</source_model>
+                </field>
+                <field id="availability_fixed"
+                       translate="label"
+                       type="text"
+                       sortOrder="11"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Availability</label>
+                    <validate>required-entry</validate>
+                    <comment>Specify the Availability attribute that should be exported in the feed.</comment>
+                    <depends>
+                        <field id="availability_mapping">1</field>
+                    </depends>
+                </field>
+                <field id="availability_attribute"
+                       translate="label"
+                       type="select"
+                       sortOrder="12"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Availability</label>
+                    <validate>required-entry</validate>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
+                    <comment>Specify the Availability attribute that should be exported in the feed.</comment>
+                    <depends>
+                        <field id="availability_mapping">0</field>
+                    </depends>
+                </field>
+                <field id="manufacturer_mapping"
+                       translate="label"
+                       type="radios"
+                       sortOrder="15"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Manufacturer Mapping</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\MappingValue</source_model>
+                </field>
+                <field id="manufacturer_fixed"
+                       translate="label"
+                       type="text"
+                       sortOrder="16"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Manufacturer</label>
+                    <validate>required-entry</validate>
+                    <comment>Specify the Manufacturer attribute that should be exported in the feed.</comment>
+                    <depends>
+                        <field id="manufacturer_mapping">1</field>
+                    </depends>
+                </field>
+                <field id="manufacturer_attribute"
+                       translate="label"
+                       type="select"
+                       sortOrder="17"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Manufacturer</label>
+                    <validate>required-entry</validate>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
+                    <comment>Specify the Manufacturer attribute that should be exported in the feed.</comment>
+                    <depends>
+                        <field id="manufacturer_mapping">0</field>
+                    </depends>
+                </field>
+                <field id="mpn"
+                       translate="label"
+                       type="select"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>MPN / ISBN</label>
+                    <validate>required-entry</validate>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
+                    <comment>The unique manufacturer identifier of the product. It is used to identify a product and classify it.</comment>
+                </field>
+                <field id="color"
+                       translate="label"
+                       type="select"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Color</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
+                    <comment>Specify the Color attribute that should be exported in the feed.</comment>
+                </field>
+                <field id="size"
+                       translate="label"
+                       type="select"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Size</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
+                    <comment>Specify the Size attribute that should be exported in the feed.</comment>
+                </field>
+                <field id="ean"
+                       translate="label"
+                       type="select"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>EAN / Barcode</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
+                    <comment>Specify the EAN attribute that should be exported in the feed.</comment>
+                </field>
             </group>
         </section>
     </system>

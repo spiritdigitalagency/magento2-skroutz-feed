@@ -41,8 +41,6 @@ class GenerateFeed extends Command
     ) {
         $name = $input->getArgument(self::NAME_ARGUMENT);
         $option = $input->getOption(self::NAME_OPTION);
-        $output->writeln("Hello " . $name);
-        $output->writeln($option);
         $this->feed->generate();
     }
 
@@ -60,4 +58,3 @@ class GenerateFeed extends Command
         parent::configure();
     }
 }
-

@@ -9,10 +9,13 @@ namespace Spirit\SkroutzFeed\Helper;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Store\Model\ScopeInterface;
 use Spatie\ArrayToXml\ArrayToXml;
 
 class Feed extends AbstractHelper
 {
+    const CONFIG_NAMESPACE = 'spirit_skroutz';
+
     /**
      * @var \Magento\Framework\Filesystem\Io\File
      */
@@ -38,6 +41,11 @@ class Feed extends AbstractHelper
      * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
      */
     protected $productCollectionFactory;
+
+    /**
+     * @var FeedProduct
+     */
+    protected $feedProductHelper;
 
     /**
      * @var \Magento\Tax\Model\Calculation
@@ -85,6 +93,7 @@ class Feed extends AbstractHelper
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $dateTime,
         \Magento\Framework\Convert\ConvertArray $convertArray,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
+        \Spirit\SkroutzFeed\Helper\FeedProduct $feedProduct,
         \Magento\Tax\Model\Calculation $taxCalculation,
         \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository,
         \Magento\Catalog\Model\ResourceModel\Category\Tree $categoryTree,
@@ -95,6 +104,7 @@ class Feed extends AbstractHelper
         $this->dateTime = $dateTime;
         $this->convertArray = $convertArray;
         $this->productCollectionFactory = $productCollectionFactory;
+        $this->feedProductHelper = $feedProduct;
         $this->taxCalculation = $taxCalculation;
         $this->categoryTree = $categoryTree;
         $this->categoryRepository = $categoryRepository;
@@ -104,11 +114,24 @@ class Feed extends AbstractHelper
     }
 
     /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getConfig(string $key)
+    {
+        return $this->scopeConfig->getValue(
+            self::CONFIG_NAMESPACE . "/$key",
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
      * @return bool
      */
     public function isEnabled()
     {
-        return true;
+        return $this->getConfig('feed_settings/status');
     }
 
     public function getTreeByCategoryId($categoryId)
@@ -117,12 +140,11 @@ class Feed extends AbstractHelper
         $category = $this->categoryRepository->get($categoryId, $storeId);
         $categoryTree = $this->categoryTree->setStoreId($storeId)->loadBreadcrumbsArray($category->getPath());
 
-        $categoryTreepath = array();
+        $categoryTreePath = [];
         foreach($categoryTree as $eachCategory){
-            echo $eachCategory['name'];
-            $categoryTreepath[] = $eachCategory['name'];
+            $categoryTreePath[] = $eachCategory['name'];
         }
-        $categoryTree = implode(' > ',$categoryTreepath);
+        $categoryTree = implode(' > ',$categoryTreePath);
         return $categoryTree;
     }
 
@@ -149,22 +171,9 @@ class Feed extends AbstractHelper
         $i = 1;
         /**
          * @var $product \Magento\Catalog\Model\Product
-         *
-         * status - yes no
-         * attribute code
          */
         foreach ($collection as $product) {
-            $entry = $this->getSkroutzProduct($product);
-            $entry['manufacturer'] = "EUR";
-            $entry['mpn'] = "EUR";
-            $entry['ean'] = "EUR";
-            $entry['quantity'] = 0;
-            $entry['availability'] = "EUR";
-            $entry['size'] = "EUR"; // hard like my ..
-            $entry['weight'] = $product->getWeight();
-            $entry['color'] = "EUR";
-            $entry['description'] = $product->getCustomAttribute('description');
-            $feed['products']['product'][] = $entry;
+            $feed['products']['product'][] = $this->getSkroutzProduct($product);
             if ($i++>3){
                 break;
             }
@@ -180,42 +189,31 @@ class Feed extends AbstractHelper
 
     protected function getSkroutzProduct($product){
         $entry = [
-            'id' => $product->getId(),
-            'name' => [ '_cdata' => $product->getName() ],
-            'link' => $product->getProductUrl(),
-            'price_with_vat' => $product->getFinalPrice(),
-            'vat' => $this->getTaxPercentage($product),
+            'id' => $this->feedProductHelper->getId($product),
+            'name' => ['_cdata' => $this->feedProductHelper->getName($product)],
+            'link' => ['_cdata' => $this->feedProductHelper->getLink($product)],
+            'image' => ['_cdata' => $this->feedProductHelper->getImage($product)],
+            'price_with_vat' => $this->feedProductHelper->getPriceWithVat($product),
+            'vat' => $this->feedProductHelper->getVat($product),
+            'availability' => ['_cdata' => $this->feedProductHelper->getAvailability($product)],
+            'manufacturer' => ['_cdata' => $this->feedProductHelper->getManufacturer($product)],
+            'mpn' => $this->feedProductHelper->getMpn($product),
+            'instock' => $this->feedProductHelper->getInStock($product),
+            'weight' => $this->feedProductHelper->getWeight($product)
         ];
+        foreach ($this->feedProductHelper->getAdditionalImages($product) as $id => $image) {
+            $entry['__custom:additionalimage:'.$id]['_cdata'] = $image;
+        }
         if ($product->getCategoryIds() && count($product->getCategoryIds())){
             $entry['category']['_cdata'] = $this->getTreeByCategoryId($product->getCategoryIds()[0]);
         }
-        $this->getImages($product, $entry);
-        $this->getStockData($product, $entry);
-        return $entry;
-    }
-
-    /**
-     * @param $product \Magento\Catalog\Model\Product
-     * @param $entry
-     */
-    protected function getStockData($product, &$entry){
-        $entry['instock'] = $product->isSalable() ? 'Y' : 'N';
-        $stockItem = $product->getExtensionAttributes()->getStockItem();
-        if (!empty($stockItem)){
-            $entry['quantity'] = $stockItem->getQty();
+        if ($description = $this->feedProductHelper->getDescription($product)){
+            $entry['description']['_cdata'] = $description;
+        }
+        if ($qty = $this->feedProductHelper->getQuantity($product)){
+            $entry['quantity'] = $qty;
         }
         return $entry;
-    }
-
-    /**
-     * @param $product \Magento\Catalog\Model\Product
-     * @param $entry
-     */
-    protected function getImages($product, &$entry){
-        $entry['image']['_cdata'] = $this->mediaUrl . 'catalog/product' . $product->getData('image');
-        foreach ($product->getMediaGalleryImages() as $image){
-            $entry['__custom:additionalimage:' . $image->getId()]['_cdata'] = $image->getUrl();
-        }
     }
 }
 

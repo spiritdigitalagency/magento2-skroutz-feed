@@ -3,19 +3,28 @@
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <default>
-            <skroutz>
-                <feed>
-                    <enable>1</enable>
-                </feed>
-            </skroutz>
             <spirit_skroutz>
                 <feed_settings>
                     <status>1</status>
+                    <frequency>D</frequency>
+                    <time/>
                     <filename>skroutz</filename>
                     <exclude_disabled>1</exclude_disabled>
                     <exclude_outofstock>1</exclude_outofstock>
                     <exclude_not_visible>1</exclude_not_visible>
                 </feed_settings>
+                <feed_mappings>
+                    <availability_mapping>0</availability_mapping>
+                    <availability_fixed/>
+                    <availability_attribute/>
+                    <manufacturer_mapping>0</manufacturer_mapping>
+                    <manufacturer_fixed/>
+                    <manufacturer_attribute>manufacturer</manufacturer_attribute>
+                    <mpn>sku</mpn>
+                    <color/>
+                    <size/>
+                    <ean/>
+                </feed_mappings>
             </spirit_skroutz>
         </default>
     </default>

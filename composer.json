@@ -1,15 +1,16 @@
 {
-    "name": "spirit/module-skroutzfeed",
+    "name": "spirit-digital-agency/magento2-skroutz-feed",
     "description": "Generate skroutz xml product feed for your Magento 2 store.",
     "keywords": [
         "magento2",
         "magento2-module",
         "skroutz",
-        "skroutz-analytics",
+        "skroutz-xml",
+        "skroutz-xml-feed",
         "integration"
     ],
     "type": "magento2-module",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "license": [
         "GPL-3.0-or-later"
     ],
@@ -23,9 +24,10 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0",
+        "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0||~8.1.0",
         "magento/framework": ">100.0",
-        "spatie/array-to-xml": "*"
+        "spatie/array-to-xml": "*",
+        "spirit-digital-agency/magento2-spirit-core": "~1.0"
     },
     "autoload": {
         "files": [
