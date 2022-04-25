@@ -1,6 +1,0 @@
-<?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-	<event name="spirit_skroutz_generate_feed">
-		<observer name="spirit_skroutzfeed_observer_spirit_skroutzgeneratefeed_spirit_skroutz_generate_feed" instance="Spirit\SkroutzFeed\Observer\Spirit\SkroutzGenerateFeed"/>
-	</event>
-</config>

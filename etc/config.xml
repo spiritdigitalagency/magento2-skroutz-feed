@@ -5,13 +5,15 @@
         <default>
             <spirit_skroutz>
                 <feed_settings>
-                    <status>1</status>
+                    <status>0</status>
                     <frequency>D</frequency>
                     <time/>
                     <filename>skroutz</filename>
                     <exclude_disabled>1</exclude_disabled>
+                    <exclude_no_image>1</exclude_no_image>
                     <exclude_outofstock>1</exclude_outofstock>
                     <exclude_not_visible>1</exclude_not_visible>
+                    <exclude_categories/>
                 </feed_settings>
                 <feed_mappings>
                     <availability_mapping>0</availability_mapping>

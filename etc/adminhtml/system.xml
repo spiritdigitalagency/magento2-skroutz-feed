@@ -41,6 +41,14 @@
                         <field id="status">1</field>
                     </depends>
                 </field>
+                <field id="exclude_no_image" type="select" sortOrder="35" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+                    <label>Exclude Products with no Image</label>
+                    <comment/>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
+                </field>
                 <field id="exclude_outofstock" type="select" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                     <label>Exclude Out of Stock Products</label>
                     <comment/>
@@ -65,6 +73,10 @@
                         <field id="status">1</field>
                     </depends>
                 </field>
+                <field id="button_id" translate="label" type="button" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Generate Feed</label>
+                    <frontend_model>Spirit\SkroutzFeed\Block\System\Config\GenerateButton</frontend_model>
+                </field>
             </group>
             <group id="feed_mappings" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
                 <label>XML Feed Mappings</label>
@@ -87,7 +99,7 @@
                        showInStore="1">
                     <label>Availability</label>
                     <validate>required-entry</validate>
-                    <comment>Specify the Availability attribute that should be exported in the feed.</comment>
+                    <comment>This product's shipping availability as used throughout your store.</comment>
                     <depends>
                         <field id="availability_mapping">1</field>
                     </depends>
@@ -102,7 +114,7 @@
                     <label>Availability</label>
                     <validate>required-entry</validate>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>Specify the Availability attribute that should be exported in the feed.</comment>
+                    <comment>This product's shipping availability as used throughout your store.</comment>
                     <depends>
                         <field id="availability_mapping">0</field>
                     </depends>
@@ -126,7 +138,7 @@
                        showInStore="1">
                     <label>Manufacturer</label>
                     <validate>required-entry</validate>
-                    <comment>Specify the Manufacturer attribute that should be exported in the feed.</comment>
+                    <comment>The manufacturer of the product.</comment>
                     <depends>
                         <field id="manufacturer_mapping">1</field>
                     </depends>
@@ -141,7 +153,7 @@
                     <label>Manufacturer</label>
                     <validate>required-entry</validate>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>Specify the Manufacturer attribute that should be exported in the feed.</comment>
+                    <comment>The manufacturer of the product.</comment>
                     <depends>
                         <field id="manufacturer_mapping">0</field>
                     </depends>
@@ -167,7 +179,7 @@
                        showInStore="1">
                     <label>Color</label>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>Specify the Color attribute that should be exported in the feed.</comment>
+                    <comment>The color of the product. The color attribute functions as a property of the specific product and cannot cover multiple product entries.</comment>
                 </field>
                 <field id="size"
                        translate="label"
@@ -189,7 +201,7 @@
                        showInStore="1">
                     <label>EAN / Barcode</label>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>Specify the EAN attribute that should be exported in the feed.</comment>
+                    <comment>The international article number (EAN) used for the identification of retail products.</comment>
                 </field>
             </group>
         </section>

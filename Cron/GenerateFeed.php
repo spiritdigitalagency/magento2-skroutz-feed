@@ -10,6 +10,11 @@ namespace Spirit\SkroutzFeed\Cron;
 class GenerateFeed
 {
 
+    /**
+     * @var \Spirit\SkroutzFeed\Helper\Feed
+     */
+    protected $feed;
+
     protected $logger;
 
     /**
@@ -17,7 +22,9 @@ class GenerateFeed
      *
      * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct(\Psr\Log\LoggerInterface $logger)
+    public function __construct(
+        \Spirit\SkroutzFeed\Helper\Feed $feed,
+        \Psr\Log\LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
@@ -29,7 +36,7 @@ class GenerateFeed
      */
     public function execute()
     {
-        $this->logger->addInfo("Cronjob GenerateFeed is executed.");
+        $this->logger->info("Cronjob GenerateFeed is executed.");
     }
 }
 
