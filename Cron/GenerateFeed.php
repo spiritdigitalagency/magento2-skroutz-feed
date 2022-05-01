@@ -26,6 +26,7 @@ class GenerateFeed
         \Spirit\SkroutzFeed\Helper\Feed $feed,
         \Psr\Log\LoggerInterface $logger)
     {
+        $this->feed = $feed;
         $this->logger = $logger;
     }
 
@@ -36,7 +37,7 @@ class GenerateFeed
      */
     public function execute()
     {
+        $this->feed->generate();
         $this->logger->info("Cronjob GenerateFeed is executed.");
     }
 }
-

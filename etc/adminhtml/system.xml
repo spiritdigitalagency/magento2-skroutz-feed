@@ -12,7 +12,7 @@
                     <comment/>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="frequency" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="frequency" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Frequency</label>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\Frequency</source_model>
                     <backend_model>Spirit\SkroutzFeed\Model\Config\CronConfig</backend_model>
@@ -20,7 +20,7 @@
                         <field id="status">1</field>
                     </depends>
                 </field>
-                <field id="time" translate="label" type="time" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="time" translate="label" type="time" sortOrder="21" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Start Time</label>
                     <depends>
                         <field id="status">1</field>
@@ -73,9 +73,12 @@
                         <field id="status">1</field>
                     </depends>
                 </field>
-                <field id="button_id" translate="label" type="button" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="generate_feed" translate="label" type="button" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Generate Feed</label>
                     <frontend_model>Spirit\SkroutzFeed\Block\System\Config\GenerateButton</frontend_model>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
                 </field>
             </group>
             <group id="feed_mappings" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
@@ -88,7 +91,7 @@
                        showInWebsite="1"
                        showInStore="1">
                     <label>Availability Mapping</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\MappingValue</source_model>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AvailabilityMapping</source_model>
                 </field>
                 <field id="availability_fixed"
                        translate="label"
@@ -127,7 +130,7 @@
                        showInWebsite="1"
                        showInStore="1">
                     <label>Manufacturer Mapping</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\MappingValue</source_model>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\ManufacturerMapping</source_model>
                 </field>
                 <field id="manufacturer_fixed"
                        translate="label"

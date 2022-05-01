@@ -134,16 +134,21 @@ class Feed extends AbstractHelper
             $page++;
         }
         $xmlFeed = ArrayToXml::convert($feed, 'feed', true, 'UTF-8');
+        $this->file->write($this->getFeedFile(), $xmlFeed);
+    }
+
+    public function getFeedFile()
+    {
         $feedDirectory = $this->filesystem->getDirectoryRead(DirectoryList::PUB)->getAbsolutePath('feeds');
-        if (!$this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR)->isDirectory($feedDirectory)) {
-            $this->file->mkdir($feedDirectory, 0775);
-        }
         /**
          * @TODO validate filename
          * @TODO check multistore filename
          */
         $filename = $this->getConfig('feed_settings/filename') ?? 'skroutz';
-        $this->file->write("$feedDirectory/$filename.xml", $xmlFeed);
+        if (!$this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR)->isDirectory($feedDirectory)) {
+            $this->file->mkdir($feedDirectory, 0775);
+        }
+        return "$feedDirectory/$filename.xml";
     }
 
     /**

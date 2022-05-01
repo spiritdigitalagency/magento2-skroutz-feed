@@ -4,7 +4,7 @@ namespace Spirit\SkroutzFeed\Model\Config\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
-class MappingValue implements OptionSourceInterface
+class ManufacturerMapping implements OptionSourceInterface
 {
 
     /**

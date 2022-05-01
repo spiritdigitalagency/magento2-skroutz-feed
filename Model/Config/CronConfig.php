@@ -4,9 +4,9 @@ namespace Spirit\SkroutzFeed\Model\Config;
 
 class CronConfig extends \Magento\Framework\App\Config\Value
 {
-    const CRON_STRING_PATH = 'spirit_skroutz/feed_settings/schedule/cron_expr';
+    const CRON_STRING_PATH = 'crontab/default/jobs/spirit_skroutz_feed/schedule/cron_expr';
 
-    const CRON_MODEL_PATH = 'spirit_skroutz/feed_settings/schedule/run/model';
+    const CRON_MODEL_PATH = 'crontab/default/jobs/spirit_skroutz_feed/schedule/run/model';
 
     protected $_configValueFactory;
 
