@@ -26,7 +26,6 @@ class Feed extends AbstractHelper
      */
     protected $filesystem;
 
-
     /**
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
@@ -46,7 +45,6 @@ class Feed extends AbstractHelper
      * @var FeedProduct
      */
     protected $feedProductHelper;
-
 
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -111,7 +109,7 @@ class Feed extends AbstractHelper
             $collection->addAttributeToFilter('small_image', ['neq' => 'no_selection']);
         }
         if ($this->getConfig('feed_settings/exclude_outofstock')) {
-            $collection->addAttributeToFilter('status', 1);
+            $collection->setFlag('has_stock_status_filter', false);
         }
         if ($this->getConfig('feed_settings/exclude_not_visible')) {
             $collection->addAttributeToFilter('visibility', \Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH);
@@ -127,9 +125,6 @@ class Feed extends AbstractHelper
             $collection->clear()->setCurPage($page);
             foreach ($collection->getItems() as $product) {
                 $feed['products']['product'][] = $this->getSkroutzProduct($product);
-            }
-            if ($page > 1) {
-                //                break;
             }
             $page++;
         }
@@ -161,6 +156,10 @@ class Feed extends AbstractHelper
         return $this->scopeConfig->getValue(self::CONFIG_NAMESPACE."/$key", ScopeInterface::SCOPE_STORE);
     }
 
+    /**
+     * @param $product
+     * @return array
+     */
     protected function getSkroutzProduct($product)
     {
         $entry = [

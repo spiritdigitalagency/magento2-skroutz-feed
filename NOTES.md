@@ -1,0 +1,11 @@
+Problems
+  - [x] Cron schedule not running from config path
+  - [ ] Categories exclude cannot deselect all
+  - [ ] filename url display check login in config section
+  - [ ] filename move validation in one place
+  - [ ] check multistore behavior
+  - [ ] exclude_outofstock connect logic
+  - [ ] add comments / instructions to config fields
+  - [ ] 
+  - [ ] 
+  - [ ] 

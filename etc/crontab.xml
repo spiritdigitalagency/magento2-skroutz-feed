@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-        <job instance="Spirit\SkroutzFeed\Cron\GenerateFeed" method="execute" name="spirit_skroutzfeed_generatefeed">
-            <schedule>crontab/default/jobs/spirit_skroutz_feed/schedule/cron_expr</schedule>
+        <job instance="Spirit\SkroutzFeed\Cron\GenerateFeed" method="execute" name="spirit_skroutz_feed_generate">
+            <config_path>crontab/default/jobs/spirit_skroutz_feed/schedule/cron_expr</config_path>
         </job>
     </group>
 </config>
