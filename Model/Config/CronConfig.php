@@ -40,7 +40,7 @@ class CronConfig extends \Magento\Framework\App\Config\Value
 
         $cronExprArray = [
             intval($time[1]),   # Minute
-            $frequency == $frequencyHourly ? '*' : intval($time[0]),    # Hour
+            $frequency == $frequencyHourly ? '8-23' : intval($time[0]),    # Hour
             $frequency == $frequencyMonthly ? '1' : '*',    # Day of the Month
             '*',    # Month of the Year
             $frequency == $frequencyWeekly ? '1' : '*',     # Day of the Week

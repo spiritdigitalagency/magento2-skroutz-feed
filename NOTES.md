@@ -6,6 +6,6 @@ Problems
   - [ ] check multistore behavior
   - [ ] exclude_outofstock connect logic
   - [ ] add comments / instructions to config fields
-  - [ ] 
+  - [ ] weekly cron check and exclude skroutz off hours midnight to 8 am
   - [ ] 
   - [ ] 
