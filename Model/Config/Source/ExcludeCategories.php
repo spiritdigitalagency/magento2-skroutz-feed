@@ -37,7 +37,9 @@ class ExcludeCategories implements OptionSourceInterface
         $collection = $this->collectionFactory->create()
             ->setStore($this->_storeManager->getStore())
             ->addAttributeToSelect('*');
-        $attributesArray = [];
+        $attributesArray = [
+            ['value' => '', 'label' => __('-- No Selection --')]
+        ];
         foreach ($collection->getItems() as $category) {
             if ($category->getId() < 3) {
                 continue;

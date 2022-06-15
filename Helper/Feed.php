@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Spirit\SkroutzFeed\Helper;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Model\ScopeInterface;
@@ -124,6 +125,12 @@ class Feed extends AbstractHelper
         while ($page <= $collection->getLastPageNumber()) {
             $collection->clear()->setCurPage($page);
             foreach ($collection->getItems() as $product) {
+                /**
+                 * @var $product ProductInterface
+                 */
+                if ($this->feedProductHelper->isInvalidConfigurable($product)){
+                    continue;
+                }
                 $feed['products']['product'][] = $this->getSkroutzProduct($product);
             }
             $page++;
@@ -157,7 +164,7 @@ class Feed extends AbstractHelper
     }
 
     /**
-     * @param $product
+     * @param $product ProductInterface
      * @return array
      */
     protected function getSkroutzProduct($product)
@@ -195,6 +202,9 @@ class Feed extends AbstractHelper
         }
         if ($qty = $this->feedProductHelper->getQuantity($product)) {
             $entry['quantity'] = $qty;
+        }
+        if ($variations = $this->feedProductHelper->getVariations($product)) {
+            $entry['variations'] = $variations;
         }
         return $entry;
     }

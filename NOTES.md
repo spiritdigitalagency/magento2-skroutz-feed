@@ -1,6 +1,6 @@
 Problems
   - [x] Cron schedule not running from config path
-  - [ ] Categories exclude cannot deselect all
+  - [x] Categories exclude cannot deselect all
   - [ ] filename url display check login in config section
   - [ ] filename move validation in one place
   - [ ] check multistore behavior

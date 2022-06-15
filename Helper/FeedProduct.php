@@ -75,27 +75,12 @@ class FeedProduct extends AbstractHelper
     }
 
     /**
-     * @param $product \Magento\Catalog\Model\Product
+     * @param $product ProductInterface
      * @return mixed
      */
     public function getName($product)
     {
         return $product->getName();
-    }
-
-    public function getId($product)
-    {
-        return $product->getData('sku');
-    }
-
-    public function getLink($product)
-    {
-        return $product->getProductUrl();
-    }
-
-    public function getPriceWithVat($product)
-    {
-        return $product->getFinalPrice();
     }
 
     public function getVat($product)
@@ -127,8 +112,9 @@ class FeedProduct extends AbstractHelper
 
     public function getDescription($product)
     {
-        if ($product->getCustomAttribute('description')) {
-            return $product->getCustomAttribute('description')->getValue();
+        $attribute = $product->getCustomAttribute('description');
+        if ($attribute && $attribute->getValue()) {
+            return strip_tags($attribute->getValue());
         }
         return null;
     }
@@ -136,15 +122,6 @@ class FeedProduct extends AbstractHelper
     public function getInStock($product)
     {
         return $product->isSalable() ? 'Y' : 'N';
-    }
-
-    public function getQuantity($product)
-    {
-        $stockItem = $product->getExtensionAttributes()->getStockItem();
-        if (!empty($stockItem)) {
-            return $stockItem->getQty();
-        }
-        return null;
     }
 
     public function getImage($product)
@@ -164,28 +141,9 @@ class FeedProduct extends AbstractHelper
         return $images;
     }
 
-    public function getAvailability($product)
+    public function getMpn($product)
     {
-        if (0 == $this->getConfig('feed_mappings/availability_mapping')) {
-            return $this->getAttributeValue($product, $this->getConfig('feed_mappings/availability_attribute'));
-        }
-        if (1 == $this->getConfig('feed_mappings/availability_mapping')) {
-            return $this->getConfig('feed_mappings/availability_fixed');
-        }
-        if ($product->isSaleable()) {
-            return 'Delivery up to 30 days';
-        }
-        return 'Delivery 1 to 3 days';
-    }
-
-    /**
-     * @param  string  $key
-     *
-     * @return mixed
-     */
-    protected function getConfig(string $key)
-    {
-        return $this->scopeConfig->getValue(self::CONFIG_NAMESPACE."/$key", ScopeInterface::SCOPE_STORE);
+        return $this->getAttributeValue($product, $this->getConfig('feed_mappings/mpn'));
     }
 
     protected function getAttributeValue($product, $code)
@@ -205,14 +163,14 @@ class FeedProduct extends AbstractHelper
         return $product->getData($code);
     }
 
-    public function getMpn($product)
+    /**
+     * @param  string  $key
+     *
+     * @return mixed
+     */
+    protected function getConfig(string $key)
     {
-        return $this->getAttributeValue($product, $this->getConfig('feed_mappings/mpn'));
-    }
-
-    public function getEan($product)
-    {
-        return $this->getAttributeValue($product, $this->getConfig('feed_mappings/ean'));
+        return $this->scopeConfig->getValue(self::CONFIG_NAMESPACE."/$key", ScopeInterface::SCOPE_STORE);
     }
 
     public function getColor($product)
@@ -221,33 +179,67 @@ class FeedProduct extends AbstractHelper
     }
 
     /**
-     * @param $product \Magento\Catalog\Model\Product
-     * @return mixed
+     * @param $product ProductInterface
+     * @return array
      */
-    public function getSize($product)
+    public function getVariations($product)
     {
-        if ($product->getTypeId() == 'configurable') {
-            //        if ($product->canConfigure()) {
-            $sizes = [];
-            //            $product->canConfigure()
-            if (!empty($product->getOptions())) {
-                var_dump($product->getOptions());
-                die;
-            }
-            $_children = $product->getTypeInstance()->getUsedProducts($product);
-            /**
-             * @var $_children ProductInterface[]
-             */
-            foreach ($_children as $child_product) {
-                $sizes[] = $this->getAttributeValue($child_product, $this->getConfig('feed_mappings/size'));
-            }
-            return implode(',', $sizes);
+        if ($product->getTypeId() != 'configurable') {
+            return null;
         }
-        return $this->getAttributeValue($product, $this->getConfig('feed_mappings/size'));
+        /**
+         * @var $_children ProductInterface[]
+         */
+        $variations = [];
+        $_children = $product->getTypeInstance()->getUsedProducts($product);
+        foreach ($_children as $child_product) {
+            $variations['__custom:variation:'.$child_product->getId()] = [
+                'variationid'     => $this->getId($child_product),
+                'link'            => $this->getLink($child_product),
+                'availability'    => $this->getAvailability($child_product),
+                'manufacturersku' => $this->getManufacturer($child_product),
+                'ean'             => $this->getEan($child_product),
+                'price_with_vat'  => $this->getPriceWithVat($child_product),
+                'size'            => $this->getSize($child_product),
+                'quantity'        => $this->getQuantity($child_product),
+            ];
+        }
+        return $variations;
+    }
+
+    public function getId($product)
+    {
+        return $product->getData('sku');
     }
 
     /**
-     * @param $product \Magento\Catalog\Model\Product
+     * @param $product ProductInterface
+     * @return mixed
+     */
+    public function getLink($product)
+    {
+        if ($product->getVisibility() == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE) {
+            return '';
+        }
+        return $product->getProductUrl();
+    }
+
+    public function getAvailability($product)
+    {
+        if (0 == $this->getConfig('feed_mappings/availability_mapping')) {
+            return $this->getAttributeValue($product, $this->getConfig('feed_mappings/availability_attribute'));
+        }
+        if (1 == $this->getConfig('feed_mappings/availability_mapping')) {
+            return $this->getConfig('feed_mappings/availability_fixed');
+        }
+        if ($product->isSaleable()) {
+            return 'Delivery up to 30 days';
+        }
+        return 'Delivery 1 to 3 days';
+    }
+
+    /**
+     * @param $product ProductInterface
      * @return mixed
      */
     public function getManufacturer($product)
@@ -258,9 +250,90 @@ class FeedProduct extends AbstractHelper
         return $this->getConfig('feed_mappings/manufacturer_fixed');
     }
 
-    protected function getTreeByCategoryId($categoryId)
+    public function getEan($product)
     {
-        return $categoryTree;
+        return $this->getAttributeValue($product, $this->getConfig('feed_mappings/ean'));
+    }
+
+    public function getPriceWithVat($product)
+    {
+        return $product->getFinalPrice();
+    }
+
+    /**
+     * @param $product ProductInterface
+     * @return mixed
+     */
+    public function getSize($product)
+    {
+        $size_attribute = $this->getConfig('feed_mappings/size');
+        if (empty($size_attribute)) {
+            return null;
+        }
+        /**
+         * @var $_children ProductInterface[]
+         */
+        if ($product->getTypeId() == 'configurable') {
+            $sizes = [];
+            $_children = $product->getTypeInstance()->getUsedProducts($product);
+            foreach ($_children as $child_product) {
+                $sizes[] = $this->getAttributeValue($child_product, $size_attribute);
+            }
+            return implode(',', $sizes);
+        }
+        return $this->getAttributeValue($product, $size_attribute);
+    }
+
+    public function getQuantity($product)
+    {
+        $stockItem = $product->getExtensionAttributes()->getStockItem();
+        if (!empty($stockItem)) {
+            return $stockItem->getQty();
+        }
+        return null;
+    }
+
+    /**
+     * @param $product ProductInterface
+     * @return bool
+     */
+    public function isInvalidConfigurable($product)
+    {
+        if ($product->getTypeId() != 'configurable') {
+            return false;
+        }
+        $configurable_attributes = $product->getTypeInstance()->getConfigurableAttributes($product);
+        foreach ($configurable_attributes as $attribute) {
+            if ($attribute->getAttributeCode() != $this->getConfig('feed_mappings/size')) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param $product ProductInterface
+     */
+    public function getCombinations($product)
+    {
+        if ($product->getTypeId() != 'configurable') {
+            return [];
+        }
+        $combinations = [];
+        $children = $product->getTypeInstance()->getUsedProducts($product);
+        $configurable_options = $product->getTypeInstance()->getConfigurableOptions($product);
+        foreach ($configurable_options as $attribute_id => $options) {
+            foreach ($options as $option) {
+                //                $combinations[$option['attribute_code']][$option['option_title']][] = $option['sku'];
+                foreach ($children as $child) {
+                    if ($child->getSku() == $option['sku']) {
+                        $combinations[$option['attribute_code']][$option['option_title']][] = $child;
+                        break;
+                    }
+                }
+            }
+        }
+        return $combinations;
     }
 }
 
