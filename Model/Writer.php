@@ -193,7 +193,7 @@ class Writer
                 foreach ($value as $label => $text) {
                     $this->xml()->startElement('spec');
                     $this->xml()->writeAttribute('name', $this->clean('spec_name', $label));
-                    $this->xml()->text($this->clean('spec', $text));
+                    $this->writeText($this->clean('spec', $text));
                     $this->xml()->endElement();
                 }
                 $this->xml()->endElement();
@@ -201,10 +201,28 @@ class Writer
                 foreach ((array)$value as $text) {
                     $text = $this->clean($name, $text);
                     if ($text !== '') {
-                        $this->xml()->writeElement($name, $text);
+                        $this->xml()->startElement($name);
+                        $this->writeText($text);
+                        $this->xml()->endElement();
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Element text, in a CDATA section when it holds &, < or > (a link with parameters, "Black & White").
+     *
+     * @param string $text
+     * @return void
+     */
+    private function writeText(string $text): void
+    {
+        if (strpbrk($text, '&<>') === false) {
+            $this->xml()->text($text);
+            return;
+        }
+        // "]]>" would end the section early: split it across two sections
+        $this->xml()->writeCdata(str_replace(']]>', ']]]]><![CDATA[>', $text));
     }
 }

@@ -26,5 +26,6 @@ First release, a rewrite of the unreleased development version.
 * Generation report per website, admin notification on failure, Skroutz Analytics Unique ID checks.
 * Generation on a cron schedule, by default at :50 from 06:50 to 23:50, in its own cron group and process;
   "Generate now" from the admin; `bin/magento spirit:skroutz:feed`.
+* Text holding &, < or > is written as CDATA, as in the Skroutz examples.
 * Events, a pluginable Unique ID and di.xml extension points for developers.
 * No dependency on other Spirit modules or on spatie/array-to-xml.

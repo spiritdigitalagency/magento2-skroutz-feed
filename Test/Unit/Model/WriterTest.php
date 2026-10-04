@@ -38,22 +38,30 @@ class WriterTest extends TestCase
             '_sku' => 'internal',
             'id' => '12-50',
             'name' => 'Shoe & Co <b>Red</b>',
+            'link' => 'https://x.gr/shoe.html#93=50&144=42',
             'additional_image' => ['https://x.gr/1.jpg', 'https://x.gr/2.jpg'],
             'ean' => null,
-            'specifications' => ['Material' => 'Canvas'],
+            'mpn' => 'A]]>B & C',
+            'specifications' => ['Material' => 'Canvas & leather', 'Sole' => 'Rubber'],
             'variations' => [['variationid' => '13', 'size' => '42', 'quantity' => '0']],
         ]);
         $writer->close();
 
+        $raw = (string)file_get_contents($file);
         $xml = simplexml_load_file($file);
         unlink($file);
+        $this->assertNotFalse($xml, 'well-formed XML');
         $product = $xml->products->product;
+        $this->assertStringContainsString('<name><![CDATA[Shoe & Co Red]]></name>', $raw);
+        $this->assertStringContainsString('<link><![CDATA[https://x.gr/shoe.html#93=50&144=42]]></link>', $raw);
+        $this->assertStringContainsString('<id>12-50</id>', $raw, 'no CDATA where nothing needs it');
+        $this->assertSame('A]]>B & C', (string)$product->mpn, '"]]>" survives a CDATA section');
+        $this->assertSame('Canvas & leather', (string)$product->specifications->spec[0]);
         $this->assertSame('2026-10-04 13:30', (string)$xml->created_at);
         $this->assertSame('Shoe & Co Red', (string)$product->name);
         $this->assertCount(2, $product->additional_image);
         $this->assertCount(0, $product->ean);
         $this->assertCount(0, $product->_sku);
-        $this->assertSame('Canvas', (string)$product->specifications->spec);
         $this->assertSame('Material', (string)$product->specifications->spec['name']);
         $this->assertSame('42', (string)$product->variations->variation->size);
         $this->assertSame('0', (string)$product->variations->variation->quantity);
