@@ -66,7 +66,7 @@ class Mapped implements FieldInterface
         if ($source === Config::FIXED) {
             $value = $this->config->getFixed($this->field);
         } else {
-            // Color and size may list several attributes: the first one the product has a value for
+            // Color and size may list several attributes, and the first one the product has a value for wins
             foreach ($this->config->getCodes($this->field) as $code) {
                 $value = $this->type === 'yesno'
                     ? (string)$product->getData($code)

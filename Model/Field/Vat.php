@@ -13,7 +13,7 @@ use Spirit\SkroutzFeed\Model\Config;
 use Spirit\SkroutzFeed\Model\Tax;
 
 /**
- * The VAT rate: from the product tax class, or a mapped/fixed value.
+ * The VAT rate, from the product tax class or a mapped or fixed value.
  */
 class Vat extends Mapped
 {

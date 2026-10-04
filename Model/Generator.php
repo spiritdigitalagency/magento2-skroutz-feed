@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Generates the Skroutz XML feed of a website into pub/media/skroutz/<file name>.xml (and .xml.gz).
  *
- * The feed online is replaced only by a complete and checked one: both files are written under
+ * The feed online is replaced only by a complete and checked one. Both files are written under
  * temporary names, read back in full (well-formed XML, every product there), compared with the feed
  * online by the "Safety Check", and only then renamed over it. A failure at any point, including a
  * killed process or a full disk, leaves the previous feed in place.
@@ -223,7 +223,7 @@ class Generator
             $clash = $this->config->getFileNameClash($website);
             if ($clash) {
                 throw new LocalizedException(__(
-                    'Website "%1" writes its feed to the same file, %2: give each website its own file name.',
+                    'Website "%1" writes its feed to the same file, %2. Give each website its own file name.',
                     $clash->getCode(),
                     $name
                 ));
@@ -239,7 +239,7 @@ class Generator
             $this->writeProducts($store, $report, $progress);
             $this->writer->close();
             $this->gzip($media, $temporary, $gzTemporary);
-            // Read back what is on disk: a truncated write (full disk) or a broken file fails here
+            // Read back what is on disk, so a truncated write (full disk) or a broken file fails here
             $this->verify($media->getAbsolutePath($temporary), $report['products']);
             $this->verify('compress.zlib://' . $media->getAbsolutePath($gzTemporary), $report['products']);
             if (!$force) {
@@ -263,7 +263,7 @@ class Generator
                     $media->delete($path);
                 }
             }
-            // The previous feed is still online: keep showing it
+            // The previous feed is still online, so the report keeps showing it
             $report += array_intersect_key($previous, array_flip(['published', 'url', 'gz_url', 'size', 'gz_size']));
             $report['error'] = $e->getMessage();
             $this->logger->error('Skroutz feed of ' . $website->getCode() . ' failed: ' . $e->getMessage(), [
@@ -341,7 +341,7 @@ class Generator
     }
 
     /**
-     * Report the problems of a row; false when it cannot be written.
+     * Report the problems of a row. False when it cannot be written.
      *
      * @param mixed[] $row
      * @param mixed[] $report
@@ -354,7 +354,7 @@ class Generator
         $sku = (string)($row['_sku'] ?? '');
         $essential = self::ESSENTIAL;
         if ($this->config->get('feed_products/exclude_no_image')) {
-            // Checked on the row: a configurable without an image of its own may take one from its children
+            // Checked on the row, as a configurable without an image of its own may take one from its children
             $essential[] = 'image';
         }
         foreach ($essential as $field) {
@@ -423,7 +423,7 @@ class Generator
     }
 
     /**
-     * Write the gzip copy of a feed: Skroutz requires compression above 10MB.
+     * Write the gzip copy of a feed. Skroutz requires compression above 10MB.
      *
      * @param WriteInterface $media
      * @param string $file
@@ -451,7 +451,7 @@ class Generator
     }
 
     /**
-     * Read a written feed back in full: it must be well-formed XML holding every product written.
+     * Read a written feed back in full. It must be well-formed XML holding every product written.
      *
      * @param string $path
      * @param int $products
@@ -465,7 +465,7 @@ class Generator
         $found = 0;
         try {
             if (!$reader->open($path, null, LIBXML_NONET)) {
-                throw new LocalizedException(__('The new feed cannot be read back; the previous one is kept.'));
+                throw new LocalizedException(__('The new feed cannot be read back. The previous one is kept.'));
             }
             while ($reader->read()) {
                 if ($reader->nodeType === \XMLReader::ELEMENT && $reader->depth === 2 && $reader->name === 'product') {
@@ -480,12 +480,12 @@ class Generator
         }
         if ($error) {
             throw new LocalizedException(
-                __('The new feed is not valid XML (%1); the previous one is kept.', trim($error->message))
+                __('The new feed is not valid XML (%1). The previous one is kept.', trim($error->message))
             );
         }
         if ($found !== $products) {
             throw new LocalizedException(__(
-                'The new feed holds %1 of the %2 products written; the previous one is kept.',
+                'The new feed holds %1 of the %2 products written. The previous one is kept.',
                 $found,
                 $products
             ));
@@ -493,7 +493,7 @@ class Generator
     }
 
     /**
-     * The Safety Check: a feed losing too many products at once is not published.
+     * The Safety Check. A feed losing too many products at once is not published.
      *
      * @param int $products products in the new feed
      * @param int $published products in the feed online

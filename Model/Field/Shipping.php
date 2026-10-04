@@ -12,8 +12,8 @@ use Spirit\SkroutzFeed\Model\AttributeValue;
 use Spirit\SkroutzFeed\Model\Config;
 
 /**
- * The shipping cost: an attribute, a fixed value, or calculated from weight and price:
- * the base cost up to a weight, plus a cost per extra kilo, free above a price.
+ * The shipping cost, from an attribute, a fixed value, or calculated from weight and price as
+ * the base cost up to a weight, plus a cost per extra kilo, and free above a price.
  */
 class Shipping extends Mapped
 {

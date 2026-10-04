@@ -1,6 +1,6 @@
 {
   "name": "spirit-digital-agency/magento2-skroutz-feed",
-  "description": "Skroutz XML feed for Magento 2: map every Skroutz field to your attributes, color and size variations, fast on large catalogs.",
+  "description": "Skroutz XML feed for Magento 2. Map every Skroutz field to your attributes, with color and size variations, fast on large catalogs.",
   "keywords": [
     "magento2",
     "magento2-module",
@@ -23,7 +23,7 @@
   ],
   "require": {
     "php": "~7.4.0||~8.1.0||~8.2.0||~8.3.0||~8.4.0||~8.5.0",
-    "magento/framework": "^103.0",
+    "magento/framework": "^103.0.2",
     "magento/module-backend": "^102.0",
     "magento/module-catalog": "^104.0",
     "magento/module-catalog-inventory": "^100.4",

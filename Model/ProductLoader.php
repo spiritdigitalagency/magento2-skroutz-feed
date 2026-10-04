@@ -32,7 +32,7 @@ use Spirit\SkroutzFeed\Model\Field\Gallery as GalleryField;
 /**
  * Loads the catalog of a website in batches, with everything the feed needs attached to each product.
  *
- * Memory stays flat on any catalog size: products are read in keyset batches (entity_id > last id, no
+ * Memory stays flat on any catalog size. Products are read in keyset batches (entity_id > last id, no
  * OFFSET and no COUNT), stock, prices, categories, images and URLs come with one query per batch, and the
  * children of configurable products are loaded in chunks of at most $maxChildren products.
  */
@@ -216,7 +216,7 @@ class ProductLoader
     }
 
     /**
-     * A product collection of the website: enabled products with the attributes the feed reads.
+     * A product collection of the website, with its enabled products and the attributes the feed reads.
      *
      * @param StoreInterface $store
      * @param string[] $extraAttributes
@@ -246,9 +246,9 @@ class ProductLoader
     }
 
     /**
-     * Drop the children of configurable products: they are listed only as variations of their parent.
+     * Drop the children of configurable products, which are listed only as variations of their parent.
      *
-     * A child of a disabled or hidden configurable is not listed on its own either: whoever turned the
+     * A child of a disabled or hidden configurable is not listed on its own either, since whoever turned the
      * configurable off meant the whole product.
      *
      * @param Product[] $products
@@ -424,8 +424,8 @@ class ProductLoader
     /**
      * Attach the product URL path of the store as data "request_path".
      *
-     * Only the URL without category path: Collection::addUrlRewrite() may pick any of the category URLs,
-     * and the link Skroutz knows must not change between two feeds.
+     * Only the URL without category path, because Collection::addUrlRewrite() may pick any of the category
+     * URLs and the link Skroutz knows must not change between two feeds.
      *
      * @param Product[] $products
      * @param int $storeId

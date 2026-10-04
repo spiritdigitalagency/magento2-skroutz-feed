@@ -14,9 +14,9 @@ use Spirit\SkroutzFeed\Model\Config;
 /**
  * The product characteristics, written as <specifications><spec name="Label">value</spec></specifications>.
  *
- * Skroutz takes free names: the label of each attribute in the store view, unless di.xml renames it
+ * Skroutz takes free names, here the label of each attribute in the store view unless di.xml renames it
  * (argument "labels", attribute code => name). To add specifications computed per product, or to drop some,
- * add an afterGetValue() plugin: it receives the name => value array and the product.
+ * add an afterGetValue() plugin. It receives the name => value array and the product.
  */
 class Specifications implements FieldInterface
 {

@@ -20,7 +20,7 @@ use Magento\Catalog\Model\Product;
 interface FieldInterface
 {
     /**
-     * The value of the element: a string, a list of strings (repeated element), a name => value map
+     * The value of the element, as a string, a list of strings (repeated element), a name => value map
      * (specifications), or null to leave the element out.
      *
      * @param Product $product

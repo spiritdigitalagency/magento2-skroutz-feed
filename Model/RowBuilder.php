@@ -15,11 +15,11 @@ use Spirit\SkroutzFeed\Model\Field\FieldInterface;
 /**
  * Turns a catalog product into the <product> rows of the feed.
  *
- * A simple product is one row. Skroutz nests sizes only, so a configurable product is:
- * - when it varies by a size attribute: one row per combination of its other options (color, fit...), every
- *   color being its own product on Skroutz, with the sizes nested as <variations>. Unique ID
- *   "<parent>-<option ids>", or the parent's when it varies by size only;
- * - when it has no size attribute (color only, capacity...): one row per child, with the child's Unique ID.
+ * A simple product is one row. Skroutz nests sizes only, so a configurable product varying by a size
+ * attribute gives one row per combination of its other options (color, fit...), every color being its own
+ * product on Skroutz with the sizes nested as <variations>. Its Unique ID is "<parent>-<option ids>", or the
+ * parent's when it varies by size only. A configurable without a size attribute (color only, capacity...)
+ * gives one row per child, with the child's Unique ID.
  *
  * Row keys starting with "_" are metadata for the report and are not written.
  */
@@ -130,7 +130,7 @@ class RowBuilder
     }
 
     /**
-     * Whether a product is listed: its availability is not "Hide from Skroutz".
+     * Whether a product is listed, which it is unless its availability is "Hide from Skroutz".
      *
      * @param Product $product
      * @return bool
@@ -167,14 +167,14 @@ class RowBuilder
         $first = reset($group);
         if ($optionIds) {
             $row['_mode'] = 'grouped';
-            // Option ids, not labels: renaming a color in the admin does not change the Unique ID
+            // Option ids, not labels, so renaming a color in the admin does not change the Unique ID
             $row['id'] = $row['id'] === null ? null : $this->uniqueId->getForVariant($parent, $optionIds);
             $row['name'] = $this->variantName($row['name'], $first, $options);
             $colors = array_intersect($options, $this->config->getCodes('color'));
             $row['color'] = $colors ? $this->labels($first, $colors, ' / ') : null;
             $row['link'] = $this->withOptions($row['link'], $optionIds);
         }
-        // The images of the color; for sizes only, those of the parent unless it has none
+        // The images of the color, or for sizes only those of the parent unless it has none
         if ($optionIds || ($row['image'] ?? null) === null) {
             foreach ($group as $child) {
                 $image = $this->value('image', $child);
@@ -198,7 +198,7 @@ class RowBuilder
         $row['availability'] = $this->fastest($availabilities);
         $row['shipping'] = $this->value('shipping', $first) ?? $row['shipping'] ?? null;
         if (count($group) === 1) {
-            // One product behind the row: its own identifiers are the precise ones
+            // One product behind the row, so its own identifiers are the precise ones
             $row['mpn'] = $this->value('mpn', $first) ?? $row['mpn'];
             $row['ean'] = $this->value('ean', $first) ?? $row['ean'];
         } else {
@@ -207,7 +207,7 @@ class RowBuilder
         }
         $sizeLabels = $variations = [];
         foreach ($group as $child) {
-            // Products use one size attribute; should a product have two (e.g. EU and US), Skroutz wants "42/9"
+            // Products use one size attribute. Should a product have two (e.g. EU and US), Skroutz wants "42/9"
             $size = $this->labels($child, $sizes, '/');
             $sizeOptions = [];
             foreach ($sizes as $attributeId => $code) {
@@ -271,7 +271,7 @@ class RowBuilder
         foreach ($children as $child) {
             $row = $this->row($child);
             if (($row['image'] ?? null) === null) {
-                // No image of its own: the parent's image and gallery
+                // No image of its own, so the parent's image and gallery
                 $row['image'] = $parentRow['image'] ?? null;
                 $row['additional_image'] = $parentRow['additional_image'] ?? null;
             }
@@ -280,7 +280,7 @@ class RowBuilder
                     $row[$name] = $value;
                 }
             }
-            // Spec by spec: the parent usually holds most of them
+            // Spec by spec, as the parent usually holds most of them
             if (is_array($parentRow['specifications'] ?? null) && is_array($row['specifications'])) {
                 $row['specifications'] = array_replace($parentRow['specifications'], $row['specifications']);
             }
@@ -310,9 +310,9 @@ class RowBuilder
     }
 
     /**
-     * The name of a grouped or child row: the parent name and the option values, as "Variant Name" sets.
+     * The name of a grouped or child row, the parent name and the option values as "Variant Name" sets.
      *
-     * "values": "T-shirt Red M"; "labels": "T-shirt Color: Red, Size: M"; "none": "T-shirt".
+     * With "values" it is "T-shirt Red M", with "labels" the option labels come first, with "none" just "T-shirt".
      *
      * @param string|null $name the parent name
      * @param Product $child

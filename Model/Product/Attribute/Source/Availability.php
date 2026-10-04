@@ -11,7 +11,7 @@ use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
 use Spirit\SkroutzFeed\Model\Config\Source\Availability as AvailabilitySource;
 
 /**
- * Options of the per product availability attributes: the Skroutz texts are the stored values,
+ * Options of the per product availability attributes. The Skroutz texts are the stored values,
  * so the feed writes them as they are.
  */
 class Availability extends AbstractSource

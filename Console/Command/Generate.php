@@ -101,7 +101,7 @@ class Generate extends Command
         try {
             $this->appState->setAreaCode(Area::AREA_CRONTAB);
         } catch (LocalizedException $e) {
-            // ponytail: the area is already set when another command runs this one
+            // The area is already set when another command runs this one
             unset($e);
         }
         $codes = (array)$input->getOption('website');

@@ -93,7 +93,7 @@ class AnalyticsCheck
         if (!$sendsParent && !empty($modes['size'])) {
             $warnings[] = (string)__(
                 '%1 configurable products are listed once, with their sizes nested, under the parent Unique ID. '
-                . 'Skroutz Analytics sends the Unique ID of the ordered variation: set its "Variation Unique IDs" '
+                . 'Skroutz Analytics sends the Unique ID of the ordered variation. Set its "Variation Unique IDs" '
                 . 'to "Send parent Unique ID".',
                 $modes['size']
             );

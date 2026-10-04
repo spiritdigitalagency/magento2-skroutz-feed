@@ -13,7 +13,7 @@ use Spirit\SkroutzFeed\Model\CategoryTree;
 use Spirit\SkroutzFeed\Model\Config;
 
 /**
- * The category path: the deepest category of the product, or a mapped attribute.
+ * The category path, from the deepest category of the product or a mapped attribute.
  */
 class Category extends Mapped
 {

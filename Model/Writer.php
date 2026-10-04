@@ -12,7 +12,7 @@ use Magento\Framework\Exception\LocalizedException;
 /**
  * Streams feed rows to an XML file, so memory does not grow with the catalog.
  *
- * Every text is cleaned to what Skroutz accepts: no HTML, no characters that are invalid in XML,
+ * Every text is cleaned to what Skroutz accepts, without HTML or characters that are invalid in XML,
  * and no longer than the maximum length of its element.
  */
 class Writer
@@ -106,7 +106,7 @@ class Writer
      */
     public function abort(): void
     {
-        // Releasing the writer closes the file; what it holds is a temporary file deleted by the caller
+        // Releasing the writer closes the file. It is a temporary file, which the caller deletes
         $this->xml = null;
     }
 
@@ -222,7 +222,7 @@ class Writer
             $this->xml()->text($text);
             return;
         }
-        // "]]>" would end the section early: split it across two sections
+        // "]]>" would end the section early, so it is split across two sections
         $this->xml()->writeCdata(str_replace(']]>', ']]]]><![CDATA[>', $text));
     }
 }

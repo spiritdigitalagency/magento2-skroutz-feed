@@ -109,7 +109,7 @@ class Config
     }
 
     /**
-     * A setting of the Skroutz section, memoized: the feed reads the same few paths for every product.
+     * A setting of the Skroutz section, memoized as the feed reads the same few paths for every product.
      *
      * @param string $path e.g. "feed_mapping/name"
      * @param int|null $storeId defaults to the pinned store view
@@ -158,7 +158,7 @@ class Config
     }
 
     /**
-     * The store view the feed of a website is generated from: its language, prices and URLs.
+     * The store view the feed of a website is generated from, which sets its language, prices and URLs.
      *
      * @param WebsiteInterface $website
      * @return StoreInterface
@@ -216,7 +216,7 @@ class Config
     }
 
     /**
-     * The source of a feed field: an attribute code, one of the special values, or '' for "not exported".
+     * The source of a feed field, an attribute code, one of the special values, or '' for "not exported".
      *
      * Color and size may list several attribute codes, separated by commas.
      *

@@ -17,7 +17,7 @@ use Spirit\SkroutzFeed\Model\Config;
 use Spirit\SkroutzFeed\Model\State;
 
 /**
- * "Generate now": queues the feed for cron, which starts it within a minute.
+ * "Generate now" queues the feed for cron, which starts it within a minute.
  *
  * Generating inside the admin request would time out on large catalogs.
  */

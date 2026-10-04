@@ -12,7 +12,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 use Spirit\SkroutzFeed\Model\Config;
 
 /**
- * The sources a feed field can be mapped to: product attributes, plus the special values a field allows.
+ * The sources a feed field can be mapped to, product attributes plus the special values a field allows.
  *
  * Variants are virtual types in di.xml (Unique ID, automatic fields, attribute lists).
  */

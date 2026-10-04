@@ -161,6 +161,29 @@ class Status extends Field
     }
 
     /**
+     * Why products were left out of the feed, as the report shows it.
+     *
+     * @param string $reason a reason code of the report, e.g. "category_filter" or "missing_image"
+     * @return string
+     */
+    public function getSkipReason(string $reason): string
+    {
+        switch ($reason) {
+            case 'category_filter':
+                return (string)__('Excluded by the category filter');
+            case 'hidden_availability':
+                return (string)__('Availability set to "Hide from Skroutz"');
+            case 'by_extension':
+                return (string)__('Left out by another extension');
+        }
+        if (strpos($reason, 'missing_') === 0) {
+            return (string)__('No <%1>', substr($reason, 8));
+        }
+
+        return $reason;
+    }
+
+    /**
      * A date of the report in the admin's locale.
      *
      * @param int $timestamp

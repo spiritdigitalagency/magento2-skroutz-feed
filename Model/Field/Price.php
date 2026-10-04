@@ -11,7 +11,7 @@ use Magento\Catalog\Model\Product;
 use Spirit\SkroutzFeed\Model\Tax;
 
 /**
- * The final price with VAT, from the price index: special prices and catalog price rules included,
+ * The final price with VAT from the price index, special prices and catalog price rules included,
  * as a guest (customer group "NOT LOGGED IN") sees it.
  */
 class Price implements FieldInterface

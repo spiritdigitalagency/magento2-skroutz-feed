@@ -65,7 +65,7 @@ class Generate
     }
 
     /**
-     * The scheduled run: the feeds of every enabled website.
+     * The scheduled run, for the feeds of every enabled website.
      *
      * @return void
      */
@@ -75,7 +75,7 @@ class Generate
     }
 
     /**
-     * Every minute: the feeds requested with "Generate now".
+     * Every minute, the feeds requested with "Generate now".
      *
      * @return void
      */

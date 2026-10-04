@@ -19,7 +19,7 @@ use Spirit\SkroutzFeed\Model\UniqueId;
 class RowBuilderTest extends TestCase
 {
     /**
-     * Color and size: one row per color, Unique ID "parent-option id", sizes nested.
+     * Color and size give one row per color, with Unique ID "parent-option id" and sizes nested.
      */
     public function testListsColorsWithNestedSizes(): void
     {
@@ -47,7 +47,7 @@ class RowBuilderTest extends TestCase
     }
 
     /**
-     * Products use different size attributes: each configurable is grouped by the one it has.
+     * Products use different size attributes, and each configurable is grouped by the one it has.
      */
     public function testUsesTheSizeAttributeOfEachProduct(): void
     {
@@ -65,7 +65,7 @@ class RowBuilderTest extends TestCase
     }
 
     /**
-     * Size and another option (fit): one row per fit, sizes nested, not one row with the fits mixed.
+     * Size and another option (fit) give one row per fit with sizes nested, not one row with the fits mixed.
      */
     public function testGroupsOtherOptionsLikeColors(): void
     {
@@ -82,7 +82,7 @@ class RowBuilderTest extends TestCase
     }
 
     /**
-     * "One size" items: with the setting, each color is a plain product with its size and no variations.
+     * With the setting, each color of a "one size" item is a plain product with its size and no variations.
      */
     public function testDoesNotNestASingleSize(): void
     {
@@ -103,7 +103,7 @@ class RowBuilderTest extends TestCase
     }
 
     /**
-     * No size attribute (capacity): one row per child, with its own Unique ID and the parent's details.
+     * Without a size attribute (capacity), one row per child with its own Unique ID and the parent's details.
      */
     public function testListsChildrenWithoutSizes(): void
     {
@@ -147,7 +147,7 @@ class RowBuilderTest extends TestCase
     }
 
     /**
-     * A child: option ids by attribute code (their labels are "label-<id>") and its field values.
+     * A child with option ids by attribute code (their labels are "label-<id>") and its field values.
      */
     private function child(
         string $id,
@@ -162,7 +162,7 @@ class RowBuilderTest extends TestCase
 
     private function product(array $data): Product
     {
-        // A real product without its constructor; the real getSku() asks the product type
+        // A real product without its constructor, as the real getSku() asks the product type
         $product = new class extends Product {
             // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
             public function __construct()

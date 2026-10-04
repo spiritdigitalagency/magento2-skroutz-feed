@@ -19,7 +19,8 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 
 /**
- * The "Schedule" setting: refuses a cron expression Magento cron cannot read, which would stop the feed silently.
+ * The "Schedule" setting. It refuses a cron expression Magento cron cannot read,
+ * which would stop the feed silently.
  */
 class Schedule extends Value
 {
@@ -60,8 +61,8 @@ class Schedule extends Value
         $expression = trim((string)preg_replace('/\s+/', ' ', (string)$this->getValue()));
         if ($expression !== '' && !$this->runsWithinADay($expression)) {
             throw new LocalizedException(__(
-                '"%1" does not generate the feed in the next 24 hours: Skroutz requires an update every day. '
-                . 'Example: 50 6-23 * * *',
+                '"%1" does not generate the feed in the next 24 hours, and Skroutz requires an update every day. '
+                . 'For example 50 6-23 * * *',
                 $expression
             ));
         }

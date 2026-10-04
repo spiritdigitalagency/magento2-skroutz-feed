@@ -12,18 +12,19 @@ a [Magento 2](https://magento.com/) store, ready to give to Skroutz and Skroutz 
 
 * One feed per website, each with its own settings, store view and stock (MSI salable quantities).
 * Map every Skroutz field to any product attribute, or to a fixed value, from the admin.
-* Configurable products the way Skroutz wants them: one product per color, sizes nested as `<variations>`.
-  Each product type can have its own size attribute (shoe size, clothing size...).
-* Availability text for in stock, backorder and out of stock products, each one can also hide the product,
+* Configurable products the way Skroutz wants them, with one product per color and the sizes nested as
+  `<variations>`. Each product type can have its own size attribute (shoe size, clothing size...).
+* Availability text for in stock, backorder and out of stock products, each of which can also hide the product,
   with per product overrides.
 * Specifications (`<specifications>`) from the attributes shown on the product page, or a selection.
 * Generated on a schedule, by default every hour from 06:50 to 23:50, or on demand from the admin.
-* A feed online is only ever replaced by a complete, checked one: a failed run never leaves Skroutz a broken file.
-* Built for large catalogs: memory stays flat, one query per batch for stock, prices, categories, images and URLs.
-* A health report after every run: products missing EAN, MPN, manufacturer, image..., with example SKUs.
-* Works with [Skroutz Analytics](https://github.com/spiritdigitalagency/magento2-skroutz-analytics): shows what
+* A new feed only replaces the one online when it is complete and checked, so a failed run never leaves Skroutz
+  a broken file.
+* Built for large catalogs.
+* A health report after every run, with the products missing EAN, MPN, manufacturer or image and example SKUs.
+* Works with [Skroutz Analytics](https://github.com/spiritdigitalagency/magento2-skroutz-analytics). It shows what
   Analytics sends and warns when orders cannot be matched to feed products.
-* Compatible with Magento Open Source and Adobe Commerce 2.4.0 – 2.4.9
+* Compatible with Magento Open Source and Adobe Commerce 2.4.2 to 2.4.9, installed with Composer 2
 * Compatible with PHP 7.4, 8.1, 8.2, 8.3, 8.4 and 8.5, with the `xmlwriter` and `zlib` extensions of standard
   PHP builds. MSI is optional.
 
@@ -63,14 +64,14 @@ If you don't want to install via composer, you can use this way.
 - Download [the latest version here](https://github.com/spiritdigitalagency/magento2-skroutz-feed/archive/master.zip)
 - Extract `master.zip` file to `app/code/Spirit/SkroutzFeed`. You should create a folder path
   `app/code/Spirit/SkroutzFeed` if not exist.
-- Go to Magento root folder and run upgrade command line to install `Spirit_SkroutzFeed`:
+- Go to Magento root folder and run upgrade command line to install `Spirit_SkroutzFeed`
 
 ```
 php bin/magento setup:upgrade
 php bin/magento cache:flush
 ```
 
-Magento cron must be running: it generates the feeds.
+Magento cron must be running, as it generates the feeds.
 
 ## Setup
 
@@ -82,10 +83,10 @@ its settings are on the same page.
 
 1. Navigate to `Stores > Configuration > Spirit > Skroutz` and switch the scope to the website
 2. In `XML Feed`, set `Enabled` to `yes` and choose the store view that gives the feed its language
-3. In `XML Feed: Field Mapping`, check the attribute of each Skroutz field: manufacturer, MPN, EAN, color and
-   size attributes. A field can also take a fixed value, e.g. the manufacturer of a single brand shop
-4. In `XML Feed: Availability and Stock`, set the availability text Skroutz shows for each stock state
-5. Save, then press `Generate now` in `XML Feed`: within a minute the feed URL and its report appear there
+3. In `XML Feed Field Mapping`, check the attribute of the manufacturer, MPN, EAN, color and size fields. A field
+   can also take a fixed value, for example the manufacturer of a single brand shop
+4. In `XML Feed Availability and Stock`, set the availability text Skroutz shows for each stock state
+5. Save, then press `Generate now` in `XML Feed`. Within a minute the feed URL and its report appear there
 6. Give Skroutz the feed URL in the Skroutz Merchants panel (the `.gz` one when the feed is over 10MB)
 
 ### Settings
@@ -93,15 +94,15 @@ its settings are on the same page.
 | Group | Settings |
 |---|---|
 | XML Feed | Enable per website, store view (language, names, links), file name, schedule, Safety Check, feed URLs, last report, "Generate now" |
-| Field Mapping | Unique ID and Variation ID, the attribute (or fixed value) of every Skroutz field, color and size attributes, shipping cost, specifications |
-| Products and Variations | Exclude products without image (off by default), category filter (exclude or include only), one product per color |
-| Availability and Stock | Availability text (or "Hide from Skroutz") for in stock, backorder and out of stock products |
+| XML Feed Field Mapping | Unique ID and Variation ID, the attribute (or fixed value) of every Skroutz field, color and size attributes, shipping cost, specifications |
+| XML Feed Products and Variations | Exclude products without image (off by default), category filter (exclude or include only), one product per color |
+| XML Feed Availability and Stock | Availability text (or "Hide from Skroutz") for in stock, backorder and out of stock products |
 
-Per product, in the "Skroutz" group of the product form, at website scope:
+Each product also has a "Skroutz" group in its form, at website scope.
 
-* **Exclude from Skroutz**: the product is not listed.
-* **Skroutz Availability: In Stock / On Backorder / Out of Stock**: overrides the availability of that stock
-  state, "Hide from Skroutz" included. Children of configurable products inherit the values of their parent.
+* **Exclude from Skroutz** leaves the product out of the feed.
+* **Skroutz Availability (In Stock, On Backorder, Out of Stock)** overrides the availability of that stock state,
+  "Hide from Skroutz" included. Children of configurable products inherit the values of their parent.
 
 All of them can be set in bulk with `Catalog > Products > Actions > Update attributes`.
 
@@ -110,8 +111,8 @@ The feed is written to `pub/media/skroutz/<website code>.xml` and `.xml.gz`. The
 ### What is listed
 
 Simple and configurable products that are enabled, visible and in the website. Bundle, grouped, virtual and
-downloadable products are not: Skroutz cannot list them correctly. A simple product that is a child of a
-configurable appears only as its variation, never on its own: when the configurable is disabled or hidden, its
+downloadable products are not, as Skroutz cannot list them correctly. A simple product that is a child of a
+configurable appears only as its variation, never on its own, so when the configurable is disabled or hidden its
 children are not listed either.
 
 | The configurable varies by | Feed |
@@ -120,40 +121,40 @@ children are not listed either.
 | A size attribute only | one product with the parent's Unique ID, sizes in `<variations>` |
 | No size attribute (color only, capacity...) | one product per child, with the child's Unique ID and the parent's details where the child has none |
 
-The option id is the id of the attribute option (e.g. the color "Red"), not its label: renaming a color in the
+The option id is the id of the attribute option (e.g. the color "Red"), not its label, so renaming a color in the
 admin keeps the Unique ID. Each size in `<variations>` has the child's "Variation ID", by default the same
-attribute as the Unique ID; a shop moving from another feed keeps the one that feed used for sizes (often the
+attribute as the Unique ID. A shop moving from another feed keeps the one that feed used for sizes (often the
 child's SKU), so Skroutz sees no size as new. With "Do Not Nest a Single Size", "one size" items set up as
 configurable products are written as plain products, without `<variations>`.
 
-**Images**: a color takes the images of its children; a child listed on its own, its own images. Where the child
-has none, the parent's are used, and the other way round for a configurable without images of its own.
+**Images.** A color takes the images of its children, and a child listed on its own takes its own images. Where
+the child has none, the parent's are used, and the other way round for a configurable without images of its own.
 
 Links of colors and sizes preselect the option on the product page (`product.html#93=50`). "Variant Name" sets
-how color rows and listed children are named: `T-shirt Red M`, `T-shirt Color: Red, Size: M` or just `T-shirt`.
+how color rows and listed children are named, for example `T-shirt Red M` or just `T-shirt`.
 
 **Prices** are the final prices of the price index (special prices and catalog price rules included) for guests,
 with VAT. Out of stock products, which Magento leaves out of the index when it hides them, fall back to their
 price or active special price.
 
-**Stock**: with MSI, the salable quantity of the stock assigned to the website (stock index plus reservations of
-unshipped orders). Without MSI, the stock item. Both minus the "Out-of-Stock Threshold".
+**Stock** is the salable quantity of the stock assigned to the website with MSI (stock index plus reservations of
+unshipped orders), or the stock item without MSI. Both minus the "Out-of-Stock Threshold".
 
-**Shipping cost**: an attribute, a fixed value, or calculated: a cost up to a weight, a cost per extra kilo, free
-above a price.
+**Shipping cost** comes from an attribute, a fixed value, or a calculation with a cost up to a weight, a cost per
+extra kilo, and free shipping above a price.
 
 ### Specifications
 
 Skroutz takes extra characteristics as `<specifications><spec name="Label">value</spec></specifications>`.
 
-* **Attributes shown on the product page** (default): the attributes with "Visible on Catalog Pages on Storefront",
-  the same ones the "More Information" tab shows. You manage them in `Stores > Attributes > Product`, and each
-  product only gets those of its attribute set that have a value.
-* **Attributes shown on the product page, except the selected**: the same, minus a list.
-* **Only the selected attributes**: a list of any attributes.
+* **Attributes shown on the product page** (default) are the attributes with "Visible on Catalog Pages on
+  Storefront", the same ones the "More Information" tab shows. You manage them in
+  `Stores > Attributes > Product`, and each product only gets those of its attribute set that have a value.
+* **Attributes shown on the product page, except the selected** are the same, minus a list.
+* **Only the selected attributes** are the ones you select.
 
-Skroutz does not define the names: they are free key-value pairs, used to enrich its catalogue. The feed uses the
-attribute labels of its store view, the names customers already see. Attributes mapped to a Skroutz field
+Skroutz does not define the names. They are free key and value pairs, used to enrich its catalogue. The feed uses
+the attribute labels of its store view, the names customers already see. Attributes mapped to a Skroutz field
 (manufacturer, color, size...) are left out, as Skroutz ignores them in specifications. A developer can rename
 specifications or add computed ones (see below).
 
@@ -163,43 +164,43 @@ Magento cron generates the feeds of every enabled website at the "Schedule" sett
 zone of the store. The default, `50 6-23 * * *`, generates them at 06:50, 07:50 ... 23:50, so a fresh feed is ready
 before every full hour from 07:00 to midnight. The jobs run in their own cron group (`spirit_skroutzfeed`), in a
 separate process, so a long run never delays the other cron jobs. "Generate now" asks cron to start within a
-minute. From the command line:
+minute. The command line does the same.
 
 ```
 php bin/magento spirit:skroutz:feed [--website=base] [--force]
 ```
 
-The feed online is only ever replaced by a complete, checked one:
+A new feed only replaces the one online when it is complete and checked.
 
 1. The `.xml` and `.xml.gz` are written under temporary names next to the feed online.
-2. Both are read back in full: they must be well-formed XML holding every product written. A full disk or a
-   killed process fails here, or never gets this far.
-3. **Safety Check**: a new feed with more than the set percentage fewer products than the one online (50% by
+2. Both are read back in full. They must be well-formed XML and hold every product written, so a full disk or a
+   stopped process never reaches Skroutz.
+3. **Safety Check.** A new feed with more than the set percentage fewer products than the one online (50% by
    default) is not published. `--force` publishes it anyway, for an expected drop.
-4. Only then are both renamed over the feed online, which is atomic: Skroutz downloads either the old file or the
+4. Only then are both renamed over the feed online in one step, so Skroutz downloads either the old file or the
    new one, never a mix.
 
-Any failure keeps the previous feed online, removes the temporary files and adds an admin notification; the
+Any failure keeps the previous feed online, removes the temporary files and adds an admin notification, and the
 report shows the error. Two websites can never write to the same file. `<created_at>` at the top of the feed is
-the time of the generation, in the store's time zone. While a long generation runs, Magento may log
-`Could not acquire lock for cron job: spirit_skroutzfeed_requests`: that is the next minute's check for
+the time of the generation, in the time zone of the store. While a long generation runs, Magento may log
+`Could not acquire lock for cron job spirit_skroutzfeed_requests`. That is the next minute's check for
 "Generate now" waiting, as intended.
 
 ## Skroutz Analytics
 
 Skroutz matches each ordered item that Analytics reports to the feed product with the same Unique ID. The feed's
 Unique ID is its own setting, the Magento product ID by default. The admin shows what Analytics sends under it,
-and the feed section warns when the two cannot match:
+and the feed section warns when the two cannot match.
 
-* a different Unique ID attribute in the feed and in Analytics;
-* Analytics sending the variation ID while the feed lists configurables under the parent;
-* colors listed as `<parent>-<color>`, an ID Analytics does not send yet;
-* a feed name taken from another attribute than the product name.
+* The feed and Analytics use a different Unique ID attribute.
+* Analytics sends the variation ID while the feed lists configurables under the parent.
+* Colors are listed as `<parent>-<color>`, an ID Analytics does not send yet.
+* The feed name comes from another attribute than the product name.
 
 ## For developers
 
-**Change the Unique ID.** Every ID of the feed comes from `Spirit\SkroutzFeed\Model\UniqueId`: `get()` for
-products, `getForVariant()` for colors and `getForVariation()` for sizes. Add a plugin:
+**Change the Unique ID.** Every ID of the feed comes from `Spirit\SkroutzFeed\Model\UniqueId`, with `get()` for
+products, `getForVariant()` for colors and `getForVariation()` for sizes. Add a plugin.
 
 ```xml
 <type name="Spirit\SkroutzFeed\Model\UniqueId">
@@ -219,7 +220,7 @@ class SkroutzId
 
 Skroutz Analytics must then send the same ID with orders.
 
-**Rename or add specifications.** Rename by attribute code in `di.xml`:
+**Rename or add specifications.** Rename them by attribute code in `di.xml`.
 
 ```xml
 <type name="Spirit\SkroutzFeed\Model\Field\Specifications">
@@ -231,7 +232,7 @@ Skroutz Analytics must then send the same ID with orders.
 </type>
 ```
 
-Add specifications computed per product, or drop some, with a plugin:
+Add specifications computed per product, or drop some, with a plugin.
 
 ```php
 class SkroutzSpecs
@@ -246,7 +247,7 @@ class SkroutzSpecs
 ```
 
 **Add or change a field.** Feed elements are registered on `Spirit\SkroutzFeed\Model\RowBuilder` in `di.xml`, keyed
-by element name. A field implements `Spirit\SkroutzFeed\Model\Field\FieldInterface`:
+by element name. A field implements `Spirit\SkroutzFeed\Model\Field\FieldInterface`.
 
 ```xml
 <type name="Spirit\SkroutzFeed\Model\RowBuilder">
@@ -268,7 +269,7 @@ class Shipping implements \Spirit\SkroutzFeed\Model\Field\FieldInterface
 }
 ```
 
-Products carry the data loaded for them: `skroutz_stock` (qty, in_stock, managed, backorders),
+Products carry the data loaded for them, `skroutz_stock` (qty, in_stock, managed, backorders),
 `skroutz_category_ids`, `skroutz_gallery`, `skroutz_parent` (children of configurables), `request_path`,
 `final_price` and `tax_class_id`.
 
@@ -290,13 +291,13 @@ Products carry the data loaded for them: `skroutz_stock` (qty, in_stock, managed
 
 ## Uninstall
 
-Installed via composer:
+Installed via composer
 
 ```
 php bin/magento module:uninstall --remove-data Spirit_SkroutzFeed
 ```
 
-Installed manually:
+Installed manually
 
 ```
 php bin/magento module:uninstall --non-composer Spirit_SkroutzFeed
@@ -307,6 +308,6 @@ then delete `app/code/Spirit/SkroutzFeed` and run `php bin/magento setup:upgrade
 
 ## Author
 
-Name: [Spirit Digital Agency](https://spiritdigital.agency/)
+[Spirit Digital Agency](https://spiritdigital.agency/)
 
 See [CHANGELOG.md](CHANGELOG.md) for the release history.

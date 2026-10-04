@@ -22,7 +22,7 @@ $websites = $block->getWebsites();
         ?>
         <div style="margin-bottom: 20px">
             <p><strong><?= $escaper->escapeHtml($website->getName()) ?></strong>
-                (<?= $escaper->escapeHtml(__('store view: %1', $block->getStore($website)->getName())) ?>)</p>
+                (<?= $escaper->escapeHtml(__('store view %1', $block->getStore($website)->getName())) ?>)</p>
             <?php if ($block->isRequested($website)): ?>
                 <p><em><?= $escaper->escapeHtml(__('Waiting for cron to generate the feed.')) ?></em></p>
             <?php endif; ?>
@@ -31,7 +31,7 @@ $websites = $block->getWebsites();
             <?php else: ?>
                 <?php if (!empty($report['error'])): ?>
                     <div class="message message-error error">
-                        <div><?= $escaper->escapeHtml(__('The last generation failed: %1', $report['error'])) ?></div>
+                        <div><?= $escaper->escapeHtml(__('The last generation failed. %1', $report['error'])) ?></div>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($report['url'])): ?>
@@ -44,21 +44,22 @@ $websites = $block->getWebsites();
                         (<?= (int)round($report['gz_size'] / 1024) ?> KB)
                     </p>
                     <?php if ($report['size'] > 10 * 1024 * 1024): ?>
-                        <?php $tooBig = __('The feed is larger than 10MB: give Skroutz the .gz URL, as required.'); ?>
+                        <?php $tooBig = __('The feed is over 10MB. Give Skroutz the .gz URL, as it requires.'); ?>
                         <p><strong><?= $escaper->escapeHtml($tooBig) ?></strong></p>
                     <?php endif; ?>
                 <?php endif; ?>
                 <p><?= $escaper->escapeHtml(__(
-                    'Last generation: %1, %2 products and %3 variations in %4 seconds.',
+                    'Last generated on %1, with %2 products and %3 variations in %4 seconds.',
                     $block->formatTimestamp((int)$report['started']),
                     $report['products'],
                     $report['variations'],
                     $report['duration'] ?? 0
                 )) ?></p>
                 <?php if (!empty($report['skipped'])): ?>
-                    <p><?= $escaper->escapeHtml(__('Not listed:')) ?>
+                    <p><strong><?= $escaper->escapeHtml(__('Not listed')) ?></strong>
                         <?php foreach ($report['skipped'] as $reason => $count): ?>
-                            <br><?= $escaper->escapeHtml($reason) ?>: <?= (int)$count ?>
+                            <br><?= $escaper->escapeHtml($block->getSkipReason((string)$reason)) ?>
+                            (<?= (int)$count ?>)
                         <?php endforeach; ?>
                     </p>
                 <?php endif; ?>
@@ -76,9 +77,9 @@ $websites = $block->getWebsites();
                             <?php
                             [$field, $type] = array_pad(explode(':', (string)$key), 2, '');
                             if ($type === 'duplicate') {
-                                $problem = __('Not listed: duplicate <%1>', $field);
+                                $problem = __('Not listed, duplicate <%1>', $field);
                             } elseif ($type === 'skipped') {
-                                $problem = __('Not listed: no <%1>', $field);
+                                $problem = __('Not listed, no <%1>', $field);
                             } else {
                                 $problem = __('No <%1>', $field);
                             }
@@ -98,7 +99,8 @@ $websites = $block->getWebsites();
             <?php endif; ?>
             <?php foreach ($analytics['warnings'] as $warning): ?>
                 <div class="message message-warning warning">
-                    <div><?= $escaper->escapeHtml(__('Skroutz Analytics: %1', $warning)) ?></div>
+                    <div><strong><?= $escaper->escapeHtml(__('Skroutz Analytics')) ?></strong>
+                        <?= $escaper->escapeHtml($warning) ?></div>
                 </div>
             <?php endforeach; ?>
         </div>

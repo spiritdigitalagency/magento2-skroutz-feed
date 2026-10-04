@@ -11,10 +11,10 @@ use Magento\Catalog\Model\Product;
 use Magento\Framework\Module\Manager as ModuleManager;
 
 /**
- * The Unique ID of a product in the feed: the Magento product ID unless another attribute is mapped.
+ * The Unique ID of a product in the feed, the Magento product ID unless another attribute is mapped.
  *
  * Every Unique ID of the feed (products, colors, variations) is built here. To change it, add a plugin on
- * get() or getForVariant(); Skroutz Analytics must then send the same ID with orders.
+ * get(), getForVariant() or getForVariation(). Skroutz Analytics must then send the same ID with orders.
  *
  * @api
  */
@@ -83,7 +83,7 @@ class UniqueId
     }
 
     /**
-     * The attribute holding the Unique ID of size variations: "Variation ID", by default the Unique ID one.
+     * The attribute holding the Unique ID of size variations, from "Variation ID" and by default the Unique ID one.
      *
      * @param int|null $storeId defaults to the store view being generated
      * @return string

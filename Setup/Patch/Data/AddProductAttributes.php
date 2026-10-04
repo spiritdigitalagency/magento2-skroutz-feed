@@ -20,15 +20,15 @@ use Spirit\SkroutzFeed\Model\ProductLoader;
 use Spirit\SkroutzFeed\Model\Stock;
 
 /**
- * Per product settings, in a "Skroutz" group of every attribute set: "Exclude from Skroutz" and the
+ * Per product settings in a "Skroutz" group of every attribute set, "Exclude from Skroutz" and the
  * availability text of each stock state. All can be changed in bulk with Catalog > Products > Update attributes.
  */
 class AddProductAttributes implements DataPatchInterface, PatchRevertableInterface
 {
     private const AVAILABILITY_LABELS = [
-        Stock::IN_STOCK => 'Skroutz Availability: In Stock',
-        Stock::BACKORDER => 'Skroutz Availability: On Backorder',
-        Stock::OUT_OF_STOCK => 'Skroutz Availability: Out of Stock',
+        Stock::IN_STOCK => 'Skroutz Availability (In Stock)',
+        Stock::BACKORDER => 'Skroutz Availability (On Backorder)',
+        Stock::OUT_OF_STOCK => 'Skroutz Availability (Out of Stock)',
     ];
 
     /**

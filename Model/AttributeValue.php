@@ -104,7 +104,7 @@ class AttributeValue
     }
 
     /**
-     * A free text value as a customer reads it: "12.5" rather than "12.500000", a date without its time.
+     * A free text value as a customer reads it, "12.5" rather than "12.500000" and a date without its time.
      *
      * @param string $code
      * @param string $raw

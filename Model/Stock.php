@@ -17,8 +17,8 @@ use Magento\Store\Model\StoreManagerInterface;
 /**
  * Stock of a batch of products, read with a few queries.
  *
- * With MSI, quantities are the salable quantities of the stock assigned to the website: the stock index
- * plus the reservations of orders not yet shipped. Without MSI, the legacy stock item. Both minus the
+ * With MSI, quantities are the salable quantities of the stock assigned to the website, which is the stock
+ * index plus the reservations of orders not yet shipped. Without MSI, the legacy stock item. Both minus the
  * "Out-of-Stock Threshold".
  */
 class Stock
@@ -73,7 +73,7 @@ class Stock
     }
 
     /**
-     * Attach the stock of each product as data "skroutz_stock": qty, in_stock, managed, backorders.
+     * Attach the stock of each product as data "skroutz_stock", with qty, in_stock, managed and backorders.
      *
      * @param Product[] $products keyed by product id
      * @param StoreInterface $store
@@ -150,7 +150,7 @@ class Stock
             $skus[] = (string)$product->getSku();
         }
         $connection = $this->resource->getConnection();
-        // ponytail: index table name as Magento\InventoryIndexer names it; stock 1 is a view of the legacy index
+        // The index table as Magento\InventoryIndexer names it. Stock 1 is a view of the legacy index
         $index = $connection->fetchAll(
             $connection->select()
                 ->from($this->resource->getTableName('inventory_stock_' . $stockId), ['sku', 'quantity', 'is_salable'])
