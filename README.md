@@ -76,12 +76,12 @@ Magento cron must be running, as it generates the feeds.
 ## Setup
 
 There are several configuration options for this extension which can be found
-at `Stores > Configuration > Spirit > Skroutz`, at default or website scope. If Skroutz Analytics is installed,
+at `Stores > Configuration > Spirit Digital > Skroutz`, at default or website scope. If Skroutz Analytics is installed,
 its settings are on the same page.
 
 ### Skroutz XML Feed
 
-1. Navigate to `Stores > Configuration > Spirit > Skroutz` and switch the scope to the website
+1. Navigate to `Stores > Configuration > Spirit Digital > Skroutz` and switch the scope to the website
 2. In `XML Feed`, set `Enabled` to `yes` and choose the store view that gives the feed its language
 3. In `XML Feed Field Mapping`, check the attribute of the manufacturer, MPN, EAN, color and size fields. A field
    can also take a fixed value, for example the manufacturer of a single brand shop

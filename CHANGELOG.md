@@ -25,6 +25,7 @@ First release, a rewrite of the unreleased development version.
 * Children of configurable products are listed only as variations, never on their own. Images fall back from child
   to parent and back.
 * Generation report per website, admin notification on failure, Skroutz Analytics Unique ID checks.
+* Settings in the "Spirit Digital" tab of `Stores > Configuration`, shared with every Spirit Digital module.
 * Generation on a cron schedule, by default at 50 minutes past every hour from 06:50 to 23:50, in its own cron group
   and process. "Generate now" from the admin and `bin/magento spirit:skroutz:feed` from the command line.
 * Text holding &, < or > is written as CDATA, as in the Skroutz examples.

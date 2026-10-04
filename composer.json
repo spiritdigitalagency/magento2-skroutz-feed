@@ -38,7 +38,8 @@
     "magento/module-url-rewrite": "^102.0"
   },
   "suggest": {
-    "spirit-digital-agency/magento2-skroutz-analytics": "Skroutz Analytics; the feed checks that both send the same Unique IDs"
+    "spirit-digital-agency/magento2-skroutz-analytics": "Skroutz Analytics, checked by the feed for the same Unique IDs",
+    "spirit-digital-agency/magento2-spirit-core": "One Spirit Digital tab for all Spirit Digital modules"
   },
   "autoload": {
     "files": [

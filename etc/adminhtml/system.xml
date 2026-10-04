@@ -10,7 +10,7 @@
     <system>
         <!-- Same tab and section as Spirit_Skroutz (analytics), so the two modules share one Skroutz page -->
         <tab id="spirit" translate="label" sortOrder="800" class="spirit-tab">
-            <label>Spirit</label>
+            <label>Spirit Digital</label>
         </tab>
         <section id="spirit_skroutz" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Skroutz</label>
