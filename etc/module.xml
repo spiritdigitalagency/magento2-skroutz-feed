@@ -1,4 +1,22 @@
-<?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-	<module name="Spirit_SkroutzFeed"/>
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Spirit_SkroutzFeed">
+        <sequence>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_CatalogInventory"/>
+            <module name="Magento_ConfigurableProduct"/>
+            <module name="Magento_Config"/>
+            <module name="Magento_Cron"/>
+            <module name="Magento_Eav"/>
+            <module name="Magento_Store"/>
+            <module name="Magento_Tax"/>
+        </sequence>
+    </module>
 </config>

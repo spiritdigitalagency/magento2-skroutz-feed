@@ -1,8 +1,16 @@
-<?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
-    <group id="default">
-        <job instance="Spirit\SkroutzFeed\Cron\GenerateFeed" method="execute" name="spirit_skroutz_feed_generate">
-            <config_path>crontab/default/jobs/spirit_skroutz_feed/schedule/cron_expr</config_path>
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="spirit_skroutzfeed">
+        <!-- Runs every minute but only generates a store's feed when it is due or was requested from the admin -->
+        <job name="spirit_skroutzfeed_generate" instance="Spirit\SkroutzFeed\Cron\Generate" method="execute">
+            <schedule>* * * * *</schedule>
         </job>
     </group>
 </config>

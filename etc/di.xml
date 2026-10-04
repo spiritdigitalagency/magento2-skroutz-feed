@@ -1,10 +1,232 @@
-<?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-	<type name="Magento\Framework\Console\CommandList">
-		<arguments>
-			<argument name="commands" xsi:type="array">
-				<item name="GenerateFeed" xsi:type="object">Spirit\SkroutzFeed\Console\Command\GenerateFeed</item>
-			</argument>
-		</arguments>
-	</type>
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        The elements of a feed product, in the order they are written.
+        Add an item to export a new element; replace one to change how it is computed.
+    -->
+    <type name="Spirit\SkroutzFeed\Model\RowBuilder">
+        <arguments>
+            <argument name="fields" xsi:type="array">
+                <item name="id" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Id</item>
+                <item name="name" xsi:type="object">SpiritSkroutzFeedNameField</item>
+                <item name="link" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Link</item>
+                <item name="image" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Image</item>
+                <item name="additional_imageurl" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Gallery</item>
+                <item name="category" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Category</item>
+                <item name="price_with_vat" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Price</item>
+                <item name="vat" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Vat</item>
+                <item name="wholesale_price" xsi:type="object">SpiritSkroutzFeedWholesalePriceField</item>
+                <item name="season" xsi:type="object">SpiritSkroutzFeedSeasonField</item>
+                <item name="size_fit" xsi:type="object">SpiritSkroutzFeedSizeFitField</item>
+                <item name="outlet" xsi:type="object">SpiritSkroutzFeedOutletField</item>
+                <item name="author" xsi:type="object">SpiritSkroutzFeedAuthorField</item>
+                <item name="expiration_date" xsi:type="object">SpiritSkroutzFeedExpirationDateField</item>
+                <item name="manufacturer" xsi:type="object">SpiritSkroutzFeedManufacturerField</item>
+                <item name="mpn" xsi:type="object">SpiritSkroutzFeedMpnField</item>
+                <item name="ean" xsi:type="object">SpiritSkroutzFeedEanField</item>
+                <item name="availability" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Availability</item>
+                <item name="size" xsi:type="object">SpiritSkroutzFeedSizeField</item>
+                <item name="weight" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Weight</item>
+                <item name="color" xsi:type="object">SpiritSkroutzFeedColorField</item>
+                <item name="description" xsi:type="object">SpiritSkroutzFeedDescriptionField</item>
+                <item name="quantity" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Quantity</item>
+                <item name="shipping" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Shipping</item>
+                <item name="country_of_origin" xsi:type="object">SpiritSkroutzFeedCountryOfOriginField</item>
+                <item name="specifications" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Specifications</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="SpiritSkroutzFeedNameField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">name</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedDescriptionField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">description</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedManufacturerField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">manufacturer</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedMpnField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">mpn</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedEanField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">ean</argument>
+            <argument name="type" xsi:type="string">ean</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedColorField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">color</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedSizeField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">size</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedWholesalePriceField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">wholesale_price</argument>
+            <argument name="type" xsi:type="string">decimal</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedSeasonField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">season</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedSizeFitField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">size_fit</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedOutletField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">outlet</argument>
+            <argument name="type" xsi:type="string">yesno</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedAuthorField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">author</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedExpirationDateField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">expiration_date</argument>
+            <argument name="type" xsi:type="string">date</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedCountryOfOriginField" type="Spirit\SkroutzFeed\Model\Field\Mapped">
+        <arguments>
+            <argument name="field" xsi:type="string">country_of_origin</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Maximum lengths of the Skroutz specification; longer texts are cut -->
+    <type name="Spirit\SkroutzFeed\Model\Writer">
+        <arguments>
+            <argument name="maxLengths" xsi:type="array">
+                <item name="id" xsi:type="number">200</item>
+                <item name="variationid" xsi:type="number">200</item>
+                <item name="name" xsi:type="number">300</item>
+                <item name="category" xsi:type="number">250</item>
+                <item name="availability" xsi:type="number">60</item>
+                <item name="manufacturer" xsi:type="number">100</item>
+                <item name="mpn" xsi:type="number">80</item>
+                <item name="manufacturersku" xsi:type="number">80</item>
+                <item name="size" xsi:type="number">500</item>
+                <item name="color" xsi:type="number">100</item>
+                <item name="description" xsi:type="number">10000</item>
+                <item name="season" xsi:type="number">100</item>
+                <item name="size_fit" xsi:type="number">100</item>
+                <item name="author" xsi:type="number">255</item>
+                <item name="expiration_date" xsi:type="number">255</item>
+                <item name="country_of_origin" xsi:type="number">255</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Admin sources of the field mapping -->
+    <virtualType name="SpiritSkroutzFeedAttributeSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute">
+        <arguments>
+            <argument name="fixed" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedFixedAttributeSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute"/>
+    <virtualType name="SpiritSkroutzFeedAutoSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute">
+        <arguments>
+            <argument name="special" xsi:type="array">
+                <item name="__auto" xsi:type="string">Automatic</item>
+            </argument>
+            <argument name="none" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedIdSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute">
+        <arguments>
+            <argument name="special" xsi:type="array">
+                <item name="entity_id" xsi:type="string">Product ID (recommended)</item>
+            </argument>
+            <argument name="fixed" xsi:type="boolean">false</argument>
+            <argument name="none" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedShippingSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute">
+        <arguments>
+            <argument name="special" xsi:type="array">
+                <item name="__auto" xsi:type="string">Calculated from weight and price</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedAvailabilityHideSource" type="Spirit\SkroutzFeed\Model\Config\Source\Availability">
+        <arguments>
+            <argument name="hide" xsi:type="boolean">true</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedCategoryFilterSource" type="Spirit\SkroutzFeed\Model\Config\Source\Options">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="exclude" xsi:type="string">All products except those in the selected categories</item>
+                <item name="include" xsi:type="string">Only products in the selected categories</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedSpecificationsSource" type="Spirit\SkroutzFeed\Model\Config\Source\Options">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="none" xsi:type="string">None</item>
+                <item name="storefront" xsi:type="string">Attributes shown on the product page</item>
+                <item name="storefront_except" xsi:type="string">Attributes shown on the product page, except the selected</item>
+                <item name="selected" xsi:type="string">Only the selected attributes</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedVariantNameSource" type="Spirit\SkroutzFeed\Model\Config\Source\Options">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="values" xsi:type="string">Name and option values (T-shirt Red M)</item>
+                <item name="labels" xsi:type="string">Name and options with labels (T-shirt Color: Red, Size: M)</item>
+                <item name="none" xsi:type="string">Name only</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedAttributeListSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute">
+        <arguments>
+            <argument name="fixed" xsi:type="boolean">false</argument>
+            <argument name="none" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- bin/magento spirit:skroutz:feed; proxies keep every other bin/magento command light -->
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="spirit_skroutz_feed" xsi:type="object">Spirit\SkroutzFeed\Console\Command\Generate</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Spirit\SkroutzFeed\Console\Command\Generate">
+        <arguments>
+            <argument name="generator" xsi:type="object">Spirit\SkroutzFeed\Model\Generator\Proxy</argument>
+            <argument name="analyticsCheck" xsi:type="object">Spirit\SkroutzFeed\Model\AnalyticsCheck\Proxy</argument>
+            <argument name="config" xsi:type="object">Spirit\SkroutzFeed\Model\Config\Proxy</argument>
+            <argument name="storeManager" xsi:type="object">Magento\Store\Model\StoreManagerInterface\Proxy</argument>
+        </arguments>
+    </type>
 </config>

@@ -1,0 +1,132 @@
+<?php
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+
+/**
+ * @var \Spirit\SkroutzFeed\Block\Adminhtml\System\Config\Status $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+$websites = $block->getWebsites();
+?>
+<div class="spirit-skroutzfeed-status">
+    <?php if (!$websites): ?>
+        <p><?= $escaper->escapeHtml(__('Enable the feed in this scope and save the configuration.')) ?></p>
+    <?php endif; ?>
+    <?php foreach ($websites as $website): ?>
+        <?php
+        $report = $block->getReport($website);
+        $analytics = $block->getAnalytics($website, $report);
+        ?>
+        <div style="margin-bottom: 20px">
+            <p><strong><?= $escaper->escapeHtml($website->getName()) ?></strong>
+                (<?= $escaper->escapeHtml(__('store view: %1', $block->getStore($website)->getName())) ?>)</p>
+            <?php if ($block->isRequested($website)): ?>
+                <p><em><?= $escaper->escapeHtml(__('Waiting for cron to generate the feed.')) ?></em></p>
+            <?php endif; ?>
+            <?php if (!$report): ?>
+                <p><?= $escaper->escapeHtml(__('The feed has not been generated yet.')) ?></p>
+            <?php else: ?>
+                <?php if (!empty($report['error'])): ?>
+                    <div class="message message-error error">
+                        <div><?= $escaper->escapeHtml(__('The last generation failed: %1', $report['error'])) ?></div>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($report['url'])): ?>
+                    <p>
+                        <a href="<?= $escaper->escapeUrl($report['url']) ?>" target="_blank" rel="noopener">
+                            <?= $escaper->escapeHtml($report['url']) ?></a>
+                        (<?= (int)round($report['size'] / 1024) ?> KB)<br>
+                        <a href="<?= $escaper->escapeUrl($report['gz_url']) ?>" target="_blank" rel="noopener">
+                            <?= $escaper->escapeHtml($report['gz_url']) ?></a>
+                        (<?= (int)round($report['gz_size'] / 1024) ?> KB)
+                    </p>
+                    <?php if ($report['size'] > 10 * 1024 * 1024): ?>
+                        <?php $tooBig = __('The feed is larger than 10MB: give Skroutz the .gz URL, as required.'); ?>
+                        <p><strong><?= $escaper->escapeHtml($tooBig) ?></strong></p>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <p><?= $escaper->escapeHtml(__(
+                    'Last generation: %1, %2 products and %3 variations in %4 seconds.',
+                    $block->formatTime((int)$report['started']),
+                    $report['products'],
+                    $report['variations'],
+                    $report['duration'] ?? 0
+                )) ?></p>
+                <?php if (!empty($report['skipped'])): ?>
+                    <p><?= $escaper->escapeHtml(__('Not listed:')) ?>
+                        <?php foreach ($report['skipped'] as $reason => $count): ?>
+                            <br><?= $escaper->escapeHtml($reason) ?>: <?= (int)$count ?>
+                        <?php endforeach; ?>
+                    </p>
+                <?php endif; ?>
+                <?php if (!empty($report['missing'])): ?>
+                    <table class="data-grid" style="margin: 10px 0">
+                        <thead>
+                        <tr>
+                            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Problem')) ?></th>
+                            <th class="data-grid-th"><?= $escaper->escapeHtml(__('Products')) ?></th>
+                            <th class="data-grid-th"><?= $escaper->escapeHtml(__('For example (SKU)')) ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($report['missing'] as $key => $entry): ?>
+                            <?php
+                            [$field, $type] = array_pad(explode(':', (string)$key), 2, '');
+                            if ($type === 'duplicate') {
+                                $problem = __('Not listed: duplicate <%1>', $field);
+                            } elseif ($type === 'skipped') {
+                                $problem = __('Not listed: no <%1>', $field);
+                            } else {
+                                $problem = __('No <%1>', $field);
+                            }
+                            ?>
+                            <tr>
+                                <td><?= $escaper->escapeHtml($problem) ?></td>
+                                <td><?= (int)$entry['count'] ?></td>
+                                <td><?= $escaper->escapeHtml(implode(', ', $entry['samples'])) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            <?php endif; ?>
+            <?php if ($analytics['summary'] !== null): ?>
+                <p><?= $escaper->escapeHtml($analytics['summary']) ?></p>
+            <?php endif; ?>
+            <?php foreach ($analytics['warnings'] as $warning): ?>
+                <div class="message message-warning warning">
+                    <div><?= $escaper->escapeHtml(__('Skroutz Analytics: %1', $warning)) ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endforeach; ?>
+    <?php if ($websites): ?>
+        <button type="button" id="spirit-skroutzfeed-generate" class="action-secondary">
+            <span><?= $escaper->escapeHtml(__('Generate now')) ?></span>
+        </button>
+        <span id="spirit-skroutzfeed-message" style="margin-left: 10px"></span>
+    <?php endif; ?>
+</div>
+<?php if ($websites): ?>
+    <?php $scriptString = <<<SCRIPT
+require(['jquery'], function ($) {
+    $('#spirit-skroutzfeed-generate').on('click', function () {
+        $.ajax({
+            url: '{$escaper->escapeJs($block->getGenerateUrl())}',
+            type: 'POST',
+            data: {form_key: window.FORM_KEY},
+            showLoader: true
+        }).done(function (response) {
+            $('#spirit-skroutzfeed-message').text(response.message);
+        }).fail(function () {
+            $('#spirit-skroutzfeed-message').text('{$escaper->escapeJs(__('The request failed. Try again.'))}');
+        });
+    });
+});
+SCRIPT;
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+<?php endif; ?>

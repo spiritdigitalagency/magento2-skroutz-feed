@@ -1,0 +1,191 @@
+<?php
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+declare(strict_types=1);
+
+namespace Spirit\SkroutzFeed\Model;
+
+/**
+ * Streams feed rows to an XML file, so memory does not grow with the catalog.
+ *
+ * Every text is cleaned to what Skroutz accepts: no HTML, no characters that are invalid in XML,
+ * and no longer than the maximum length of its element.
+ */
+class Writer
+{
+    /** Elements holding URLs: never stripped or truncated */
+    private const URLS = ['link', 'image', 'additional_imageurl'];
+
+    /** Elements that keep their line breaks */
+    private const MULTILINE = ['description'];
+
+    /**
+     * @var \XMLWriter|null
+     */
+    private $xml;
+
+    /**
+     * @var array<string, int>
+     */
+    private $maxLengths;
+
+    /**
+     * @param array $maxLengths element name => maximum length, from the Skroutz specification
+     */
+    public function __construct(array $maxLengths = [])
+    {
+        $this->maxLengths = $maxLengths;
+    }
+
+    /**
+     * Start a feed file.
+     *
+     * @param string $path absolute path
+     * @param string $createdAt e.g. "2026-10-04 13:30"
+     * @return void
+     */
+    public function open(string $path, string $createdAt): void
+    {
+        $this->xml = new \XMLWriter();
+        $this->xml->openUri($path);
+        $this->xml->startDocument('1.0', 'UTF-8');
+        $this->xml->startElement('mywebstore');
+        $this->xml->writeElement('created_at', $createdAt);
+        $this->xml->startElement('products');
+    }
+
+    /**
+     * Write one <product>.
+     *
+     * @param array $row element name => value
+     * @return void
+     */
+    public function write(array $row): void
+    {
+        $this->xml->startElement('product');
+        $this->writeFields($row);
+        $this->xml->endElement();
+    }
+
+    /**
+     * Write the buffered XML to the file.
+     *
+     * @return void
+     */
+    public function flush(): void
+    {
+        $this->xml->flush();
+    }
+
+    /**
+     * Close the root elements and the file.
+     *
+     * @return void
+     */
+    public function close(): void
+    {
+        $this->xml->endElement();
+        $this->xml->endElement();
+        $this->xml->endDocument();
+        $this->xml->flush();
+        $this->xml = null;
+    }
+
+    /**
+     * Close the file without finishing the document, after a failure.
+     *
+     * @return void
+     */
+    public function abort(): void
+    {
+        if ($this->xml) {
+            $this->xml->flush();
+            $this->xml = null;
+        }
+    }
+
+    /**
+     * Clean a text for an element.
+     *
+     * @param string $name element name
+     * @param mixed $value
+     * @return string
+     */
+    public function clean(string $name, $value): string
+    {
+        $value = (string)$value;
+        if (!mb_check_encoding($value, 'UTF-8')) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        }
+        if (!in_array($name, self::URLS, true)) {
+            if (strpbrk($value, '<&{') !== false) {
+                $value = preg_replace(
+                    [
+                        '#<(script|style)\b[^>]*>.*?</\1\s*>#is',
+                        '#\{\{.*?\}\}#s',
+                        '#<(br|/p|/div|/li|/h[1-6]|/tr)\b[^>]*>#i',
+                    ],
+                    ['', '', "\n"],
+                    $value
+                );
+                // phpcs:ignore Magento2.Functions.DiscouragedFunction -- decoding to plain text, not output to HTML
+                $value = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            }
+            $value = in_array($name, self::MULTILINE, true)
+                ? preg_replace(['/[^\S\n]+/u', '/\s*\n\s*/u'], [' ', "\n"], $value)
+                : preg_replace('/\s+/u', ' ', $value);
+        }
+        $value = trim((string)preg_replace(
+            '/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u',
+            '',
+            (string)$value
+        ));
+        if (isset($this->maxLengths[$name]) && mb_strlen($value) > $this->maxLengths[$name]) {
+            $value = rtrim(mb_substr($value, 0, $this->maxLengths[$name]));
+        }
+
+        return $value;
+    }
+
+    /**
+     * Write the elements of a product or variation.
+     *
+     * @param array $row
+     * @return void
+     */
+    private function writeFields(array $row): void
+    {
+        foreach ($row as $name => $value) {
+            if ($name === '' || $name[0] === '_' || $value === null || $value === '' || $value === []) {
+                continue;
+            }
+            if ($name === 'variations') {
+                $this->xml->startElement('variations');
+                foreach ($value as $variation) {
+                    $this->xml->startElement('variation');
+                    $this->writeFields($variation);
+                    $this->xml->endElement();
+                }
+                $this->xml->endElement();
+            } elseif ($name === 'specifications') {
+                $this->xml->startElement('specifications');
+                foreach ($value as $label => $text) {
+                    $this->xml->startElement('spec');
+                    $this->xml->writeAttribute('name', $this->clean('spec_name', $label));
+                    $this->xml->text($this->clean('spec', $text));
+                    $this->xml->endElement();
+                }
+                $this->xml->endElement();
+            } else {
+                foreach ((array)$value as $text) {
+                    $text = $this->clean($name, $text);
+                    if ($text !== '') {
+                        $this->xml->writeElement($name, $text);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,210 +1,298 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+<!--
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <section id="spirit_skroutz" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+        <!-- Same tab and section as Spirit_Skroutz (analytics): the two modules share one Skroutz page -->
+        <tab id="spirit" translate="label" sortOrder="800" class="spirit-tab">
+            <label>Spirit</label>
+        </tab>
+        <section id="spirit_skroutz" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Skroutz</label>
-            <tab>sp_settings</tab>
-            <resource>Spirit_SkroutzFeed::config_spirit_skroutzfeed</resource>
-            <group id="feed_settings" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                <label>XML Feed Settings</label>
-                <field id="status" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
+            <tab>spirit</tab>
+            <resource>Spirit_Skroutz::config</resource>
+            <group id="feed" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>XML Feed</label>
+                <field id="status" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
-                    <comment/>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[One feed per website.]]></comment>
                 </field>
-                <field id="frequency" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Frequency</label>
+                <field id="store" translate="label comment" type="select" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Store View</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\StoreView</source_model>
+                    <comment><![CDATA[The store view that gives the feed its language, names and links. With several languages, pick the Greek one.]]></comment>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
+                </field>
+                <field id="filename" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>File Name</label>
+                    <comment><![CDATA[Without extension. Empty: the website code. The feed is written to pub/media/skroutz/&lt;name&gt;.xml and .xml.gz.]]></comment>
+                    <depends>
+                        <field id="status">1</field>
+                    </depends>
+                </field>
+                <field id="frequency" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Regenerate</label>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\Frequency</source_model>
-                    <backend_model>Spirit\SkroutzFeed\Model\Config\CronConfig</backend_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
+                    <comment><![CDATA[Needs Magento cron. Skroutz requires at least one update a day; every hour keeps prices and stock accurate for Skroutz Marketplace orders.]]></comment>
                 </field>
-                <field id="time" translate="label" type="time" sortOrder="21" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Start Time</label>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="filename" type="text" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>Filename</label>
-                    <comment/>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="exclude_disabled" type="select" sortOrder="30" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>Exclude Disabled Products</label>
-                    <comment/>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="exclude_no_image" type="select" sortOrder="35" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>Exclude Products with no Image</label>
-                    <comment/>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="exclude_outofstock" type="select" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>Exclude Out of Stock Products</label>
-                    <comment/>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="exclude_not_visible" type="select" sortOrder="50" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>Exclude not Visible Products</label>
-                    <comment/>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="exclude_categories" type="multiselect" sortOrder="60" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                    <label>Exclude Categories</label>
-                    <comment/>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\ExcludeCategories</source_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
-                </field>
-                <field id="generate_feed" translate="label" type="button" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Generate Feed</label>
-                    <frontend_model>Spirit\SkroutzFeed\Block\System\Config\GenerateButton</frontend_model>
-                    <depends>
-                        <field id="status">1</field>
-                    </depends>
+                <field id="status_info" translate="label" type="button" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Feed</label>
+                    <frontend_model>Spirit\SkroutzFeed\Block\Adminhtml\System\Config\Status</frontend_model>
                 </field>
             </group>
-            <group id="feed_mappings" sortOrder="40" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
-                <label>XML Feed Mappings</label>
-                <field id="availability_mapping"
-                       translate="label"
-                       type="radios"
-                       sortOrder="10"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Availability Mapping</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AvailabilityMapping</source_model>
-                </field>
-                <field id="availability_fixed"
-                       translate="label"
-                       type="text"
-                       sortOrder="11"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Availability</label>
+            <group id="feed_mapping" translate="label comment" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>XML Feed: Field Mapping</label>
+                <comment><![CDATA[Pick the product attribute that holds each Skroutz field. Link, image, gallery, price, quantity, availability and weight are read by the module.]]></comment>
+                <field id="id" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Unique ID</label>
+                    <source_model>SpiritSkroutzFeedIdSource</source_model>
+                    <frontend_model>Spirit\SkroutzFeed\Block\Adminhtml\System\Config\UniqueId</frontend_model>
                     <validate>required-entry</validate>
-                    <comment>This product's shipping availability as used throughout your store.</comment>
+                    <comment><![CDATA[Must never change for a product and never be reused: changing it makes Skroutz see every product as new. Skroutz Analytics must send the same attribute with orders.]]></comment>
+                </field>
+                <field id="name" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Name</label>
+                    <source_model>SpiritSkroutzFeedAttributeSource</source_model>
+                    <comment><![CDATA[Include brand, model and variant. Skroutz Analytics requires the same name it receives with each order.]]></comment>
+                </field>
+                <field id="description" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Description</label>
+                    <source_model>SpiritSkroutzFeedAttributeSource</source_model>
+                    <comment><![CDATA[HTML is removed. Up to 10,000 characters.]]></comment>
+                </field>
+                <field id="category" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Category</label>
+                    <source_model>SpiritSkroutzFeedAutoSource</source_model>
+                    <comment><![CDATA["Automatic" writes the full path of the deepest active category of the product, e.g. "Shoes > Sneakers".]]></comment>
+                </field>
+                <field id="category_fixed" translate="label" type="text" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Category Value</label>
                     <depends>
-                        <field id="availability_mapping">1</field>
+                        <field id="category">__fixed</field>
                     </depends>
                 </field>
-                <field id="availability_attribute"
-                       translate="label"
-                       type="select"
-                       sortOrder="12"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Availability</label>
-                    <validate>required-entry</validate>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>This product's shipping availability as used throughout your store.</comment>
-                    <depends>
-                        <field id="availability_mapping">0</field>
-                    </depends>
-                </field>
-                <field id="manufacturer_mapping"
-                       translate="label"
-                       type="radios"
-                       sortOrder="15"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Manufacturer Mapping</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\ManufacturerMapping</source_model>
-                </field>
-                <field id="manufacturer_fixed"
-                       translate="label"
-                       type="text"
-                       sortOrder="16"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
+                <field id="manufacturer" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Manufacturer</label>
-                    <validate>required-entry</validate>
-                    <comment>The manufacturer of the product.</comment>
+                    <source_model>SpiritSkroutzFeedFixedAttributeSource</source_model>
+                    <comment><![CDATA[Required by Skroutz.]]></comment>
+                </field>
+                <field id="manufacturer_fixed" translate="label" type="text" sortOrder="51" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Manufacturer Value</label>
                     <depends>
-                        <field id="manufacturer_mapping">1</field>
+                        <field id="manufacturer">__fixed</field>
                     </depends>
                 </field>
-                <field id="manufacturer_attribute"
-                       translate="label"
-                       type="select"
-                       sortOrder="17"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Manufacturer</label>
-                    <validate>required-entry</validate>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>The manufacturer of the product.</comment>
-                    <depends>
-                        <field id="manufacturer_mapping">0</field>
-                    </depends>
-                </field>
-                <field id="mpn"
-                       translate="label"
-                       type="select"
-                       sortOrder="20"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
+                <field id="mpn" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>MPN / ISBN</label>
-                    <validate>required-entry</validate>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>The unique manufacturer identifier of the product. It is used to identify a product and classify it.</comment>
+                    <source_model>SpiritSkroutzFeedAttributeSource</source_model>
+                    <comment><![CDATA[Required by Skroutz. The manufacturer code, the ISBN for books.]]></comment>
                 </field>
-                <field id="color"
-                       translate="label"
-                       type="select"
-                       sortOrder="30"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Color</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>The color of the product. The color attribute functions as a property of the specific product and cannot cover multiple product entries.</comment>
-                </field>
-                <field id="size"
-                       translate="label"
-                       type="select"
-                       sortOrder="30"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
-                    <label>Size</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>Specify the Size attribute that should be exported in the feed.</comment>
-                </field>
-                <field id="ean"
-                       translate="label"
-                       type="select"
-                       sortOrder="30"
-                       showInDefault="1"
-                       showInWebsite="1"
-                       showInStore="1">
+                <field id="ean" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>EAN / Barcode</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\AttributeList</source_model>
-                    <comment>The international article number (EAN) used for the identification of retail products.</comment>
+                    <source_model>SpiritSkroutzFeedAttributeSource</source_model>
+                    <comment><![CDATA[Required by Skroutz. 8 to 14 digits; other values are left out and listed in the report.]]></comment>
+                </field>
+                <field id="color" translate="label comment" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Color Attributes</label>
+                    <source_model>SpiritSkroutzFeedAttributeListSource</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <comment><![CDATA[Required for fashion. Every attribute that holds a color; a product uses the first one it has a value for.]]></comment>
+                </field>
+                <field id="size" translate="label comment" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Size Attributes</label>
+                    <source_model>SpiritSkroutzFeedAttributeListSource</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <comment><![CDATA[Required for products with sizes. Usually one per product type (shoes, clothing...). A configurable product varying by a size attribute is listed once per color (and per other option), with Unique ID "parent ID-option ID" and its sizes nested as variations. Without a size attribute, each child is listed as its own product.]]></comment>
+                </field>
+                <field id="vat" translate="label comment" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>VAT Rate</label>
+                    <source_model>SpiritSkroutzFeedAutoSource</source_model>
+                    <comment><![CDATA["Automatic" uses the tax rate of the product tax class for the default tax destination of the store.]]></comment>
+                </field>
+                <field id="vat_fixed" translate="label" type="text" sortOrder="101" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>VAT Rate Value</label>
+                    <depends>
+                        <field id="vat">__fixed</field>
+                    </depends>
+                </field>
+                <field id="shipping" translate="label comment" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Shipping Cost</label>
+                    <source_model>SpiritSkroutzFeedShippingSource</source_model>
+                    <comment><![CDATA[Only if the shipping cost is the same for every location: Skroutz drops it from all products if it is wrong for one.]]></comment>
+                </field>
+                <field id="shipping_fixed" translate="label" type="text" sortOrder="111" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Shipping Cost Value</label>
+                    <depends>
+                        <field id="shipping">__fixed</field>
+                    </depends>
+                </field>
+                <field id="shipping_cost" translate="label comment" type="text" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Cost</label>
+                    <validate>validate-number</validate>
+                    <comment><![CDATA[Up to the weight below.]]></comment>
+                    <depends>
+                        <field id="shipping">__auto</field>
+                    </depends>
+                </field>
+                <field id="shipping_weight" translate="label" type="text" sortOrder="113" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Weight Included (kg)</label>
+                    <validate>validate-number</validate>
+                    <depends>
+                        <field id="shipping">__auto</field>
+                    </depends>
+                </field>
+                <field id="shipping_extra_kg" translate="label" type="text" sortOrder="114" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Cost per Extra Kilo</label>
+                    <validate>validate-number</validate>
+                    <depends>
+                        <field id="shipping">__auto</field>
+                    </depends>
+                </field>
+                <field id="shipping_free_over" translate="label comment" type="text" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Free Shipping From</label>
+                    <validate>validate-number</validate>
+                    <comment><![CDATA[Product price with VAT. Empty: never free.]]></comment>
+                    <depends>
+                        <field id="shipping">__auto</field>
+                    </depends>
+                </field>
+                <field id="wholesale_price" translate="label comment" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Wholesale Price</label>
+                    <source_model>SpiritSkroutzFeedAttributeSource</source_model>
+                    <comment><![CDATA[Purchase price without VAT. The feed is public: map it only if Skroutz asked for it.]]></comment>
+                </field>
+                <field id="season" translate="label comment" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Season</label>
+                    <source_model>SpiritSkroutzFeedFixedAttributeSource</source_model>
+                    <comment><![CDATA[e.g. SS26.]]></comment>
+                </field>
+                <field id="season_fixed" translate="label" type="text" sortOrder="131" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Season Value</label>
+                    <depends>
+                        <field id="season">__fixed</field>
+                    </depends>
+                </field>
+                <field id="size_fit" translate="label comment" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Size Fit</label>
+                    <source_model>SpiritSkroutzFeedFixedAttributeSource</source_model>
+                    <comment><![CDATA[e.g. regular, slim.]]></comment>
+                </field>
+                <field id="size_fit_fixed" translate="label" type="text" sortOrder="141" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Size Fit Value</label>
+                    <depends>
+                        <field id="size_fit">__fixed</field>
+                    </depends>
+                </field>
+                <field id="outlet" translate="label comment" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Outlet</label>
+                    <source_model>SpiritSkroutzFeedFixedAttributeSource</source_model>
+                    <comment><![CDATA[A Yes/No attribute, or a fixed Y or N.]]></comment>
+                </field>
+                <field id="outlet_fixed" translate="label" type="text" sortOrder="151" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Outlet Value</label>
+                    <depends>
+                        <field id="outlet">__fixed</field>
+                    </depends>
+                </field>
+                <field id="author" translate="label comment" type="select" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Author</label>
+                    <source_model>SpiritSkroutzFeedFixedAttributeSource</source_model>
+                    <comment><![CDATA[For books.]]></comment>
+                </field>
+                <field id="author_fixed" translate="label" type="text" sortOrder="161" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Author Value</label>
+                    <depends>
+                        <field id="author">__fixed</field>
+                    </depends>
+                </field>
+                <field id="expiration_date" translate="label comment" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Expiration Date</label>
+                    <source_model>SpiritSkroutzFeedAttributeSource</source_model>
+                    <comment><![CDATA[For perishables, cosmetics and supplements.]]></comment>
+                </field>
+                <field id="country_of_origin" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Country of Origin</label>
+                    <source_model>SpiritSkroutzFeedFixedAttributeSource</source_model>
+                </field>
+                <field id="country_of_origin_fixed" translate="label" type="text" sortOrder="181" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Country of Origin Value</label>
+                    <depends>
+                        <field id="country_of_origin">__fixed</field>
+                    </depends>
+                </field>
+                <field id="specifications_mode" translate="label comment" type="select" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Specifications</label>
+                    <source_model>SpiritSkroutzFeedSpecificationsSource</source_model>
+                    <comment><![CDATA[Product characteristics, written as &lt;spec name="Label"&gt;value&lt;/spec&gt; with the labels of the store view. "Attributes shown on the product page" follows the "Visible on Catalog Pages on Storefront" setting of each attribute (Stores &gt; Attributes &gt; Product). Attributes mapped to a field above are left out: Skroutz ignores them.]]></comment>
+                </field>
+                <field id="specifications" translate="label comment" type="multiselect" sortOrder="191" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Specification Attributes</label>
+                    <source_model>SpiritSkroutzFeedAttributeListSource</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <depends>
+                        <field id="specifications_mode" separator=",">selected,storefront_except</field>
+                    </depends>
+                    <comment><![CDATA[The attributes to export, or to leave out.]]></comment>
+                </field>
+            </group>
+            <group id="feed_products" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>XML Feed: Products and Variations</label>
+                <field id="exclude_no_image" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Exclude Products Without Image</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[The image is required by Skroutz.]]></comment>
+                </field>
+                <field id="category_filter" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Category Filter</label>
+                    <source_model>SpiritSkroutzFeedCategoryFilterSource</source_model>
+                </field>
+                <field id="categories" translate="label comment" type="multiselect" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Categories</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\Categories</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <comment><![CDATA[Subcategories are included. A single product is excluded with its "Exclude from Skroutz" attribute. Disabled and not visible products, bundles and grouped products are never listed.]]></comment>
+                </field>
+                <field id="single_size" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Do Not Nest a Single Size</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[For "one size" fashion items set up as configurable products: when all children have the same size, each color is written as a plain product, without &lt;variations&gt;.]]></comment>
+                </field>
+                <field id="variant_name" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Variant Name</label>
+                    <source_model>SpiritSkroutzFeedVariantNameSource</source_model>
+                    <comment><![CDATA[The name of a color, or of a child of a configurable listed on its own. Skroutz asks for the color in the name; other options keep the names of variants apart.]]></comment>
+                </field>
+            </group>
+            <group id="feed_stock" translate="label comment" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>XML Feed: Availability and Stock</label>
+                <comment><![CDATA[The availability text of each stock state. Products can override it with their "Skroutz Availability" attributes, and children of configurable products inherit those of their parent.]]></comment>
+                <field id="in_stock" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>In Stock</label>
+                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\Availability</source_model>
+                    <comment><![CDATA["Άμεσα διαθέσιμο" is for products you ship the same day: it qualifies them for Skroutz Express delivery.]]></comment>
+                </field>
+                <field id="backorder" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>On Backorder</label>
+                    <source_model>SpiritSkroutzFeedAvailabilityHideSource</source_model>
+                    <comment><![CDATA[Products with backorders enabled and no quantity.]]></comment>
+                </field>
+                <field id="out_of_stock" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Out of Stock</label>
+                    <source_model>SpiritSkroutzFeedAvailabilityHideSource</source_model>
+                    <comment><![CDATA[Listed with quantity 0 unless hidden.]]></comment>
+                </field>
+                <field id="unmanaged_qty" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Quantity When Stock Is Not Managed</label>
+                    <validate>validate-digits</validate>
+                    <comment><![CDATA[Skroutz requires a quantity for every product.]]></comment>
                 </field>
             </group>
         </section>

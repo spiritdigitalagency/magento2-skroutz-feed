@@ -1,9 +1,15 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
     <router id="admin">
-        <route frontName="skroutz_feed" id="skroutz_feed">
-            <module name="Spirit_SkroutzFeed" before="Magento_Backend"/>
+        <route id="spirit_skroutzfeed" frontName="spirit_skroutzfeed">
+            <module name="Spirit_SkroutzFeed"/>
         </route>
     </router>
 </config>

@@ -1,33 +1,56 @@
 <?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Spirit Digital Agency. All rights reserved.
+ * See LICENSE.md for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
-        <default>
-            <spirit_skroutz>
-                <feed_settings>
-                    <status>0</status>
-                    <frequency>D</frequency>
-                    <time/>
-                    <filename>skroutz</filename>
-                    <exclude_disabled>1</exclude_disabled>
-                    <exclude_no_image>1</exclude_no_image>
-                    <exclude_outofstock>1</exclude_outofstock>
-                    <exclude_not_visible>1</exclude_not_visible>
-                    <exclude_categories/>
-                </feed_settings>
-                <feed_mappings>
-                    <availability_mapping>0</availability_mapping>
-                    <availability_fixed/>
-                    <availability_attribute/>
-                    <manufacturer_mapping>0</manufacturer_mapping>
-                    <manufacturer_fixed/>
-                    <manufacturer_attribute>manufacturer</manufacturer_attribute>
-                    <mpn>sku</mpn>
-                    <color/>
-                    <size/>
-                    <ean/>
-                </feed_mappings>
-            </spirit_skroutz>
-        </default>
+        <spirit_skroutz>
+            <feed>
+                <status>0</status>
+                <store/>
+                <filename/>
+                <frequency>60</frequency>
+            </feed>
+            <feed_products>
+                <exclude_no_image>1</exclude_no_image>
+                <category_filter>exclude</category_filter>
+                <categories/>
+                <single_size>0</single_size>
+                <variant_name>values</variant_name>
+            </feed_products>
+            <feed_stock>
+                <in_stock>Διαθέσιμο από 1 έως 3 ημέρες</in_stock>
+                <backorder>Διαθέσιμο από 4 έως 10 ημέρες</backorder>
+                <out_of_stock>__hide</out_of_stock>
+                <unmanaged_qty>100</unmanaged_qty>
+            </feed_stock>
+            <feed_mapping>
+                <id>entity_id</id>
+                <name>name</name>
+                <description>description</description>
+                <category>__auto</category>
+                <manufacturer>manufacturer</manufacturer>
+                <mpn>sku</mpn>
+                <ean/>
+                <color>color</color>
+                <size>size</size>
+                <vat>__auto</vat>
+                <shipping/>
+                <shipping_weight>2</shipping_weight>
+                <wholesale_price/>
+                <season/>
+                <size_fit/>
+                <outlet/>
+                <author/>
+                <expiration_date/>
+                <country_of_origin>country_of_manufacture</country_of_origin>
+                <specifications_mode>storefront</specifications_mode>
+                <specifications/>
+            </feed_mapping>
+        </spirit_skroutz>
     </default>
 </config>
