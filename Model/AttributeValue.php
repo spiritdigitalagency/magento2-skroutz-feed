@@ -95,7 +95,7 @@ class AttributeValue
     public function getLabel(string $code): string
     {
         $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $code);
-        if (!$attribute || !$attribute->getId()) {
+        if (!$attribute->getId()) {
             return $code;
         }
         $labels = $attribute->getStoreLabels();
@@ -144,7 +144,7 @@ class AttributeValue
         ) {
             $attribute->setStoreId($this->storeId);
             $labels = [];
-            foreach ($attribute->getSource()->getAllOptions(false) as $option) {
+            foreach ($attribute->getSource()->getAllOptions() as $option) {
                 if (!is_array($option['value'] ?? null)) {
                     $labels[(string)$option['value']] = trim((string)$option['label']);
                 }

@@ -74,7 +74,7 @@ class Config
     private $storeId;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private $cache = [];
 
@@ -173,7 +173,7 @@ class Config
         }
 
         return $this->storeManager->getStore((int)$this->storeManager->getGroup(
-            (int)$website->getDefaultGroupId()
+            (string)$website->getDefaultGroupId()
         )->getDefaultStoreId());
     }
 
@@ -185,7 +185,7 @@ class Config
      */
     public function getFileName(WebsiteInterface $website): string
     {
-        $name = preg_replace(
+        $name = (string)preg_replace(
             '/[^A-Za-z0-9_-]+/',
             '',
             $this->getWebsiteValue('feed/filename', (int)$website->getId())
@@ -288,7 +288,7 @@ class Config
         if ($mode === self::SPECS_STOREFRONT || $mode === self::SPECS_STOREFRONT_EXCEPT) {
             $collection = $this->attributeCollectionFactory->create()
                 ->addFieldToSelect('attribute_code')
-                ->addFieldToFilter('is_visible_on_front', 1);
+                ->addFieldToFilter('is_visible_on_front', '1');
             foreach ($collection as $attribute) {
                 $codes[] = (string)$attribute->getAttributeCode();
             }
@@ -324,6 +324,6 @@ class Config
         }
         $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $code);
 
-        return $attribute && $attribute->getId();
+        return (bool)$attribute->getId();
     }
 }

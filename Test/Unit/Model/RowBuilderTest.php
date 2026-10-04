@@ -209,6 +209,9 @@ class RowBuilderTest extends TestCase
         foreach (['id', 'name', 'link', 'image', 'price_with_vat', 'availability', 'manufacturer', 'mpn', 'ean',
                      'color', 'quantity', 'specifications', 'additional_image'] as $name) {
             $fields[$name] = new class($name) implements FieldInterface {
+                /**
+                 * @var string
+                 */
                 private $name;
 
                 public function __construct(string $name)

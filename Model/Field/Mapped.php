@@ -95,7 +95,7 @@ class Mapped implements FieldInterface
                 return substr($value, 0, 10);
             case 'ean':
                 // Skroutz takes 8 to 14 digits (EAN-8, UPC, EAN-13, ISBN-13, GTIN-14)
-                $digits = preg_replace('/\D+/', '', $value);
+                $digits = (string)preg_replace('/\D+/', '', $value);
                 return in_array(strlen($digits), [8, 12, 13, 14], true) ? $digits : null;
             case 'yesno':
                 return in_array(strtolower($value), ['1', 'y', 'yes', 'true'], true) ? 'Y' : 'N';

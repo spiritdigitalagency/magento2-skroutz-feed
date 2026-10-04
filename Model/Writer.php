@@ -34,7 +34,7 @@ class Writer
     private $maxLengths;
 
     /**
-     * @param array $maxLengths element name => maximum length, from the Skroutz specification
+     * @param int[] $maxLengths element name => maximum length, from the Skroutz specification
      */
     public function __construct(array $maxLengths = [])
     {
@@ -55,24 +55,24 @@ class Writer
         if (!$xml->openUri($path)) {
             throw new LocalizedException(__('Cannot write the feed file %1.', $path));
         }
+        $xml->startDocument('1.0', 'UTF-8');
+        $xml->startElement('mywebstore');
+        $xml->writeElement('created_at', $createdAt);
+        $xml->startElement('products');
         $this->xml = $xml;
-        $this->xml->startDocument('1.0', 'UTF-8');
-        $this->xml->startElement('mywebstore');
-        $this->xml->writeElement('created_at', $createdAt);
-        $this->xml->startElement('products');
     }
 
     /**
      * Write one <product>.
      *
-     * @param array $row element name => value
+     * @param mixed[] $row element name => value
      * @return void
      */
     public function write(array $row): void
     {
-        $this->xml->startElement('product');
+        $this->xml()->startElement('product');
         $this->writeFields($row);
-        $this->xml->endElement();
+        $this->xml()->endElement();
     }
 
     /**
@@ -82,7 +82,7 @@ class Writer
      */
     public function flush(): void
     {
-        $this->xml->flush();
+        $this->xml()->flush();
     }
 
     /**
@@ -92,10 +92,10 @@ class Writer
      */
     public function close(): void
     {
-        $this->xml->endElement();
-        $this->xml->endElement();
-        $this->xml->endDocument();
-        $this->xml->flush();
+        $this->xml()->endElement();
+        $this->xml()->endElement();
+        $this->xml()->endDocument();
+        $this->xml()->flush();
         $this->xml = null;
     }
 
@@ -108,6 +108,21 @@ class Writer
     {
         // Releasing the writer closes the file; what it holds is a temporary file deleted by the caller
         $this->xml = null;
+    }
+
+    /**
+     * The open feed file.
+     *
+     * @return \XMLWriter
+     * @throws LocalizedException when no file is open
+     */
+    private function xml(): \XMLWriter
+    {
+        if ($this->xml === null) {
+            throw new LocalizedException(__('The feed file is not open.'));
+        }
+
+        return $this->xml;
     }
 
     /**
@@ -135,7 +150,7 @@ class Writer
                     $value
                 );
                 // phpcs:ignore Magento2.Functions.DiscouragedFunction -- decoding to plain text, not output to HTML
-                $value = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $value = html_entity_decode(strip_tags((string)$value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             }
             $value = in_array($name, self::MULTILINE, true)
                 ? preg_replace(['/[^\S\n]+/u', '/\s*\n\s*/u'], [' ', "\n"], $value)
@@ -156,7 +171,7 @@ class Writer
     /**
      * Write the elements of a product or variation.
      *
-     * @param array $row
+     * @param mixed[] $row
      * @return void
      */
     private function writeFields(array $row): void
@@ -166,27 +181,27 @@ class Writer
                 continue;
             }
             if ($name === 'variations') {
-                $this->xml->startElement('variations');
+                $this->xml()->startElement('variations');
                 foreach ($value as $variation) {
-                    $this->xml->startElement('variation');
+                    $this->xml()->startElement('variation');
                     $this->writeFields($variation);
-                    $this->xml->endElement();
+                    $this->xml()->endElement();
                 }
-                $this->xml->endElement();
+                $this->xml()->endElement();
             } elseif ($name === 'specifications') {
-                $this->xml->startElement('specifications');
+                $this->xml()->startElement('specifications');
                 foreach ($value as $label => $text) {
-                    $this->xml->startElement('spec');
-                    $this->xml->writeAttribute('name', $this->clean('spec_name', $label));
-                    $this->xml->text($this->clean('spec', $text));
-                    $this->xml->endElement();
+                    $this->xml()->startElement('spec');
+                    $this->xml()->writeAttribute('name', $this->clean('spec_name', $label));
+                    $this->xml()->text($this->clean('spec', $text));
+                    $this->xml()->endElement();
                 }
-                $this->xml->endElement();
+                $this->xml()->endElement();
             } else {
                 foreach ((array)$value as $text) {
                     $text = $this->clean($name, $text);
                     if ($text !== '') {
-                        $this->xml->writeElement($name, $text);
+                        $this->xml()->writeElement($name, $text);
                     }
                 }
             }

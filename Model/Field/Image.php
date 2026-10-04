@@ -10,6 +10,7 @@ namespace Spirit\SkroutzFeed\Model\Field;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store;
 
 /**
  * The base image.
@@ -47,7 +48,9 @@ class Image implements FieldInterface
      */
     public function getUrl(string $file): string
     {
-        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA, true)
-            . 'catalog/product/' . ltrim($file, '/');
+        /** @var Store $store */
+        $store = $this->storeManager->getStore();
+
+        return $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA, true) . 'catalog/product/' . ltrim($file, '/');
     }
 }

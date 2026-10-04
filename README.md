@@ -13,7 +13,9 @@ Generates the [Skroutz XML feed](https://developer.skroutz.gr/products/xml_feed/
 * A health report after every run: products missing EAN, MPN, manufacturer, image..., with example SKUs.
 * Works with [Skroutz Analytics](https://github.com/spiritdigitalagency/magento2-skroutz-analytics): shows what
   Analytics sends and warns when orders cannot be matched to feed products.
-* Compatible with Magento Open Source and Adobe Commerce 2.4.0 – 2.4.9, PHP 7.4 – 8.5.
+* Compatible with Magento Open Source and Adobe Commerce 2.4.0 – 2.4.9, PHP 7.4 – 8.5, with the `xmlwriter`
+  and `zlib` extensions of standard PHP builds. MSI is optional.
+* A feed online is only ever replaced by a complete, checked one.
 
 ## Installation
 

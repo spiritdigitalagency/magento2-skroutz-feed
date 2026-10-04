@@ -10,6 +10,7 @@ namespace Spirit\SkroutzFeed\Model;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\Store;
 
 /**
  * The category paths of a store, loaded once per feed instead of once per product.
@@ -76,6 +77,7 @@ class CategoryTree
      */
     public function load(StoreInterface $store): void
     {
+        /** @var Store $store */
         $rootPath = '1/' . (int)$store->getRootCategoryId() . '/';
         $collection = $this->collectionFactory->create()
             ->setStoreId((int)$store->getId())

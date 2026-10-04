@@ -62,7 +62,7 @@ class Tax
         $store = $this->storeManager->getStore();
         $key = $store->getId() . '/' . $taxClassId;
         if (!isset($this->rates[$key])) {
-            $request = $this->calculation->getRateRequest(null, null, null, $store);
+            $request = $this->calculation->getRateRequest(null, null, null, (int)$store->getId());
             $this->rates[$key] = (float)$this->calculation->getRate($request->setProductClassId($taxClassId));
         }
 
@@ -78,7 +78,7 @@ class Tax
      */
     public function includeTax(float $price, int $taxClassId): float
     {
-        if ($this->taxConfig->priceIncludesTax($this->storeManager->getStore())) {
+        if ($this->taxConfig->priceIncludesTax((int)$this->storeManager->getStore()->getId())) {
             return $price;
         }
 

@@ -73,7 +73,7 @@ class RowBuilder
      *
      * @param Product $product
      * @param Product[] $children the children of a configurable product
-     * @return array[]
+     * @return array<int, array<string, mixed>>
      */
     public function build(Product $product, array $children = []): array
     {
@@ -117,7 +117,7 @@ class RowBuilder
      * The values of all fields for one product.
      *
      * @param Product $product
-     * @return array
+     * @return array<string, mixed>
      */
     public function row(Product $product): array
     {
@@ -151,7 +151,7 @@ class RowBuilder
      * @param string[] $options attribute id => code of the options other than size
      * @param string[] $sizes attribute id => code of the size attributes
      * @param bool $nest false for "one size" products when "Do Not Nest a Single Size" is on
-     * @return array
+     * @return array<string, mixed>
      */
     private function groupRow(
         Product $parent,
@@ -163,6 +163,7 @@ class RowBuilder
     ): array {
         $row = $this->row($parent);
         $row['_mode'] = 'size';
+        /** @var Product $first the group is never empty */
         $first = reset($group);
         if ($optionIds) {
             $row['_mode'] = 'grouped';
@@ -191,6 +192,7 @@ class RowBuilder
             $quantities[] = (int)$this->value('quantity', $child);
             $availabilities[] = (string)$this->value('availability', $child);
         }
+        /** @var non-empty-array<int, float> $prices the group is never empty */
         $row['price_with_vat'] = number_format(min($prices), 2, '.', '');
         $row['quantity'] = (string)min(Field\Quantity::MAX, array_sum($quantities));
         $row['availability'] = $this->fastest($availabilities);
@@ -260,7 +262,7 @@ class RowBuilder
      * @param Product $parent
      * @param Product[] $children
      * @param string[] $super attribute id => code
-     * @return array[]
+     * @return array<int, array<string, mixed>>
      */
     private function childRows(Product $parent, array $children, array $super): array
     {

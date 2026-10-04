@@ -62,7 +62,7 @@ class AnalyticsCheck
      * Warnings for a store view, empty when Analytics is not installed or not enabled.
      *
      * @param int $storeId the store view of the feed
-     * @param array|null $report the last generation report, for warnings about the products actually listed
+     * @param mixed[]|null $report the last generation report, for warnings about the products actually listed
      * @return string[]
      */
     public function getWarnings(int $storeId, ?array $report = null): array

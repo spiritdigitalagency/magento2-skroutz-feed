@@ -36,7 +36,7 @@ class Schedule extends Value
      * @param ScheduleFactory $scheduleFactory
      * @param AbstractResource|null $resource
      * @param AbstractDb|null $resourceCollection
-     * @param array $data
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,
@@ -57,7 +57,7 @@ class Schedule extends Value
      */
     public function beforeSave()
     {
-        $expression = trim(preg_replace('/\s+/', ' ', (string)$this->getValue()));
+        $expression = trim((string)preg_replace('/\s+/', ' ', (string)$this->getValue()));
         if ($expression !== '' && !$this->runsWithinADay($expression)) {
             throw new LocalizedException(__(
                 '"%1" does not generate the feed in the next 24 hours: Skroutz requires an update every day. '

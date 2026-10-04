@@ -51,7 +51,7 @@ class Attribute implements OptionSourceInterface
 
     /**
      * @param CollectionFactory $collectionFactory
-     * @param array $special value => label, listed first
+     * @param string[] $special value => label, listed first
      * @param bool $fixed whether the field takes a fixed value
      * @param bool $none whether the field can be left out
      */
@@ -69,6 +69,8 @@ class Attribute implements OptionSourceInterface
 
     /**
      * @inheritdoc
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function toOptionArray(): array
     {

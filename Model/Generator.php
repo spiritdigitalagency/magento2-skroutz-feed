@@ -21,6 +21,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\Data\WebsiteInterface;
 use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\Store;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -184,7 +185,7 @@ class Generator
      * @param WebsiteInterface $website
      * @param callable|null $progress called with the number of products written so far
      * @param bool $force publish even when the Safety Check fails
-     * @return array the report
+     * @return array<string, mixed> the report
      * @throws LocalizedException when the feed of the website is already being generated
      * @throws \Throwable when generation fails; the previous feed is kept
      */
@@ -246,6 +247,7 @@ class Generator
             }
             $media->renameFile($gzTemporary, $file . '.gz');
             $media->renameFile($temporary, $file);
+            /** @var Store $store */
             $baseUrl = $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA, true);
             $report += [
                 'published' => $report['products'],
@@ -292,7 +294,7 @@ class Generator
      * Write every product of the website.
      *
      * @param StoreInterface $store
-     * @param array $report
+     * @param mixed[] $report
      * @param callable|null $progress
      * @return void
      */
@@ -341,10 +343,10 @@ class Generator
     /**
      * Report the problems of a row; false when it cannot be written.
      *
-     * @param array $row
-     * @param array $report
-     * @param array $ids Unique IDs written so far
-     * @param array $variationIds variation Unique IDs written so far
+     * @param mixed[] $row
+     * @param mixed[] $report
+     * @param bool[] $ids Unique IDs written so far
+     * @param bool[] $variationIds variation Unique IDs written so far
      * @return bool
      */
     private function check(array &$row, array &$report, array &$ids, array &$variationIds): bool
@@ -388,7 +390,7 @@ class Generator
     /**
      * Count a product missing a field.
      *
-     * @param array $report
+     * @param mixed[] $report
      * @param string $field
      * @param string $sku
      * @param string $type "missing", "skipped" (missing and not written) or "duplicate"
@@ -411,7 +413,7 @@ class Generator
     /**
      * Increment a counter.
      *
-     * @param array $counters
+     * @param int[] $counters
      * @param string $key
      * @return void
      */
@@ -433,10 +435,17 @@ class Generator
         $in = $media->openFile($file, 'r');
         $out = $media->openFile($gzFile, 'w');
         $deflate = deflate_init(ZLIB_ENCODING_GZIP, ['level' => 6]);
-        while (!$in->eof()) {
-            $out->write(deflate_add($deflate, $in->read(1048576), ZLIB_NO_FLUSH));
+        if ($deflate === false) {
+            throw new LocalizedException(__('The gzip copy of the feed cannot be written.'));
         }
-        $out->write(deflate_add($deflate, '', ZLIB_FINISH));
+        do {
+            $eof = $in->eof();
+            $chunk = deflate_add($deflate, $eof ? '' : $in->read(1048576), $eof ? ZLIB_FINISH : ZLIB_NO_FLUSH);
+            if ($chunk === false) {
+                throw new LocalizedException(__('The gzip copy of the feed cannot be written.'));
+            }
+            $out->write($chunk);
+        } while (!$eof);
         $in->close();
         $out->close();
     }

@@ -11,6 +11,7 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Visibility;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store;
 
 /**
  * The https link of the product page, from the URL rewrite loaded with the collection.
@@ -40,6 +41,9 @@ class Link implements FieldInterface
         }
         $path = $product->getData('request_path') ?: 'catalog/product/view/id/' . $product->getId();
 
-        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_LINK, true) . $path;
+        /** @var Store $store */
+        $store = $this->storeManager->getStore();
+
+        return $store->getBaseUrl(UrlInterface::URL_TYPE_LINK, true) . $path;
     }
 }

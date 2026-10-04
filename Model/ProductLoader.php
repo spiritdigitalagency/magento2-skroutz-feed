@@ -187,6 +187,7 @@ class ProductLoader
                 'collection' => $collection,
                 'store' => $store,
             ]);
+            /** @var Product[] $products */
             $products = $collection->getItems();
             if (!$products) {
                 return;
@@ -232,7 +233,7 @@ class ProductLoader
             ->setStoreId((int)$store->getId())
             ->addWebsiteFilter((int)$store->getWebsiteId())
             ->addAttributeToSelect(array_values(array_diff(array_unique($attributes), ['entity_id'])))
-            ->addAttributeToFilter('status', Status::STATUS_ENABLED);
+            ->addAttributeToFilter('status', ['eq' => Status::STATUS_ENABLED]);
         if ($this->config->isAttribute(self::EXCLUDE_ATTRIBUTE)) {
             $collection->addAttributeToFilter(
                 self::EXCLUDE_ATTRIBUTE,
@@ -279,7 +280,7 @@ class ProductLoader
      * Child ids of the configurable products, with their super attributes attached to each parent.
      *
      * @param Product[] $products
-     * @return array parent id => [child id => child id]
+     * @return array<int, array<int, int>> parent id => [child id => child id]
      */
     private function getChildIds(array $products): array
     {
@@ -321,9 +322,9 @@ class ProductLoader
      * Load the children of the configurables in a chunk.
      *
      * @param Product[] $chunk
-     * @param array $childIds parent id => child ids
+     * @param int[][] $childIds parent id => child ids
      * @param StoreInterface $store
-     * @return array parent id => children
+     * @return array<int, array<int, Product>> parent id => children
      */
     private function loadChildren(array $chunk, array $childIds, StoreInterface $store): array
     {
@@ -335,6 +336,7 @@ class ProductLoader
         if (!$ids) {
             return [];
         }
+        /** @var Product[] $products */
         $products = $this->createCollection($store, array_unique(array_merge([], ...$superCodes)))
             ->addAttributeToFilter('entity_id', ['in' => array_values($ids)])
             ->getItems();

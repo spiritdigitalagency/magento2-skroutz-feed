@@ -46,7 +46,7 @@ class Status extends Field
      * @param Config $config
      * @param State $state
      * @param AnalyticsCheck $analyticsCheck
-     * @param array $data
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,
@@ -113,7 +113,7 @@ class Status extends Field
      * The last report of a website.
      *
      * @param WebsiteInterface $website
-     * @return array|null
+     * @return array<string, mixed>|null mixed>|null
      */
     public function getReport(WebsiteInterface $website): ?array
     {
@@ -135,8 +135,8 @@ class Status extends Field
      * What Skroutz Analytics sends, and the warnings about it, for a website.
      *
      * @param WebsiteInterface $website
-     * @param array|null $report
-     * @return string[]
+     * @param mixed[]|null $report
+     * @return array<string, mixed> mixed>
      */
     public function getAnalytics(WebsiteInterface $website, ?array $report): array
     {

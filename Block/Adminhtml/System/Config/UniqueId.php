@@ -32,7 +32,7 @@ class UniqueId extends Field
      * @param Context $context
      * @param Config $config
      * @param AnalyticsCheck $analyticsCheck
-     * @param array $data
+     * @param mixed[] $data
      */
     public function __construct(
         Context $context,
@@ -51,9 +51,11 @@ class UniqueId extends Field
     public function render(AbstractElement $element)
     {
         $websiteId = (int)$this->getRequest()->getParam('website');
-        $website = $websiteId
-            ? $this->_storeManager->getWebsite($websiteId)
-            : $this->_storeManager->getWebsite((int)$this->_storeManager->getDefaultStoreView()->getWebsiteId());
+        $defaultStore = $this->_storeManager->getDefaultStoreView();
+        if (!$websiteId && $defaultStore) {
+            $websiteId = (int)$defaultStore->getWebsiteId();
+        }
+        $website = $this->_storeManager->getWebsite($websiteId ?: null);
         $summary = $this->analyticsCheck->getSummary((int)$this->config->getStore($website)->getId());
         if ($summary !== null) {
             $element->setComment($element->getComment() . '<br><strong>' . $this->escapeHtml($summary) . '</strong>');

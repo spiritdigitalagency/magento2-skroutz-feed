@@ -34,7 +34,7 @@ class State
      * The report of the last generation of a store.
      *
      * @param int $storeId
-     * @return array|null
+     * @return array<string, mixed>|null
      */
     public function getReport(int $storeId): ?array
     {
@@ -47,7 +47,7 @@ class State
      * Save the report of a generation.
      *
      * @param int $storeId
-     * @param array $report
+     * @param mixed[] $report
      * @return void
      */
     public function saveReport(int $storeId, array $report): void
