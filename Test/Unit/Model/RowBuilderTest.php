@@ -54,13 +54,14 @@ class RowBuilderTest extends TestCase
         $parent = $this->parent('20', 'Shirt', [144 => 'clothing_size']);
         $rows = $this->builder()->build($parent, [
             $this->child('21', ['clothing_size' => 7], '20.00', '1'),
-            $this->child('22', ['clothing_size' => 8], '20.00', '1'),
+            $this->child('22', ['clothing_size' => 8, 'image' => 'https://x.gr/22.jpg'], '20.00', '1'),
         ]);
 
         $this->assertCount(1, $rows);
         $this->assertSame('20', $rows[0]['id']);
         $this->assertSame('label-7,label-8', $rows[0]['size']);
         $this->assertCount(2, $rows[0]['variations']);
+        $this->assertSame('https://x.gr/22.jpg', $rows[0]['image'], 'a parent without an image takes one of a child');
     }
 
     /**
@@ -109,14 +110,26 @@ class RowBuilderTest extends TestCase
         $parent = $this->parent('50', 'Phone', [200 => 'capacity']);
         $parent->setData('manufacturer', 'Acme');
         $parent->setData('ean', '5200000000001');
-        $rows = $this->builder()->build($parent, [$this->child('51', ['capacity' => 128], '500.00', '3')]);
+        $parent->setData('specifications', ['Material' => 'Aluminium', 'Sale' => 'Yes']);
+        $parent->setData('image', 'https://x.gr/50.jpg');
+        $parent->setData('additional_image', ['https://x.gr/50b.jpg']);
+        $child = $this->child('51', ['capacity' => 128], '500.00', '3');
+        $child->setData('specifications', ['Sale' => 'No']);
+        $own = $this->child('52', ['capacity' => 256], '600.00', '1');
+        $own->setData('image', 'https://x.gr/52.jpg');
+        $rows = $this->builder()->build($parent, [$child, $own]);
 
-        $this->assertCount(1, $rows);
+        $this->assertCount(2, $rows);
+        $this->assertSame('https://x.gr/50.jpg', $rows[0]['image'], 'no image of its own: those of the parent');
+        $this->assertSame(['https://x.gr/50b.jpg'], $rows[0]['additional_image']);
+        $this->assertSame('https://x.gr/52.jpg', $rows[1]['image']);
+        $this->assertNull($rows[1]['additional_image'], 'never the gallery of the parent under its own image');
         $this->assertSame('51', $rows[0]['id']);
         $this->assertSame('Phone label-128', $rows[0]['name']);
         $this->assertSame('Acme', $rows[0]['manufacturer']);
         $this->assertNull($rows[0]['ean'], 'a variant never borrows the EAN of its parent');
         $this->assertSame('https://x.gr/p50.html#200=128', $rows[0]['link']);
+        $this->assertSame(['Material' => 'Aluminium', 'Sale' => 'No'], $rows[0]['specifications']);
     }
 
     public function testHidesSimpleProducts(): void
@@ -149,11 +162,19 @@ class RowBuilderTest extends TestCase
 
     private function product(array $data): Product
     {
-        $product = $this->getMockBuilder(Product::class)->disableOriginalConstructor()
-            ->onlyMethods(['getSku'])->getMock();
+        // A real product without its constructor; the real getSku() asks the product type
+        $product = new class extends Product {
+            // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
+            public function __construct()
+            {
+            }
+
+            public function getSku()
+            {
+                return $this->getData('sku');
+            }
+        };
         $product->setData($data);
-        // The real getSku() asks the product type, which needs the object manager
-        $product->method('getSku')->willReturn($data['sku'] ?? null);
 
         return $product;
     }
@@ -163,7 +184,7 @@ class RowBuilderTest extends TestCase
      */
     private function builder(bool $singleSize = false): RowBuilder
     {
-        $config = $this->createMock(Config::class);
+        $config = $this->createStub(Config::class);
         $config->method('getCodes')->willReturnMap([
             ['color', ['color']],
             ['size', ['shoe_size', 'clothing_size']],
@@ -172,18 +193,21 @@ class RowBuilderTest extends TestCase
             ['feed_products/variant_name', null, 'values'],
             ['feed_products/single_size', null, $singleSize ? '1' : '0'],
         ]);
-        $attributeValue = $this->createMock(AttributeValue::class);
+        $attributeValue = $this->createStub(AttributeValue::class);
         $attributeValue->method('get')->willReturnCallback(function (Product $product, string $code) {
             $value = $product->getData($code);
             return $value === null ? null : 'label-' . $value;
         });
-        $uniqueId = $this->createMock(UniqueId::class);
+        $uniqueId = $this->createStub(UniqueId::class);
         $uniqueId->method('getForVariant')->willReturnCallback(function (Product $parent, array $options) {
             return implode('-', array_merge([$parent->getData('id')], $options));
         });
+        $uniqueId->method('getForVariation')->willReturnCallback(function (Product $child) {
+            return (string)$child->getData('id');
+        });
         $fields = [];
         foreach (['id', 'name', 'link', 'image', 'price_with_vat', 'availability', 'manufacturer', 'mpn', 'ean',
-                     'color', 'quantity'] as $name) {
+                     'color', 'quantity', 'specifications', 'additional_image'] as $name) {
             $fields[$name] = new class($name) implements FieldInterface {
                 private $name;
 
@@ -195,7 +219,7 @@ class RowBuilderTest extends TestCase
                 public function getValue(Product $product)
                 {
                     $value = $product->getData($this->name);
-                    return $value === null ? null : (string)$value;
+                    return $value === null || is_array($value) ? $value : (string)$value;
                 }
             };
         }

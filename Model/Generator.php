@@ -26,8 +26,10 @@ use Psr\Log\LoggerInterface;
 /**
  * Generates the Skroutz XML feed of a website into pub/media/skroutz/<file name>.xml (and .xml.gz).
  *
- * The feed is written to a temporary file and renamed when complete, so Skroutz never downloads a
- * half-written feed and a failed run keeps the previous one.
+ * The feed online is replaced only by a complete and checked one: both files are written under
+ * temporary names, read back in full (well-formed XML, every product there), compared with the feed
+ * online by the "Safety Check", and only then renamed over it. A failure at any point, including a
+ * killed process or a full disk, leaves the previous feed in place.
  */
 class Generator
 {
@@ -181,11 +183,12 @@ class Generator
      *
      * @param WebsiteInterface $website
      * @param callable|null $progress called with the number of products written so far
+     * @param bool $force publish even when the Safety Check fails
      * @return array the report
      * @throws LocalizedException when the feed of the website is already being generated
      * @throws \Throwable when generation fails; the previous feed is kept
      */
-    public function generate(WebsiteInterface $website, ?callable $progress = null): array
+    public function generate(WebsiteInterface $website, ?callable $progress = null, bool $force = false): array
     {
         $websiteId = (int)$website->getId();
         $lock = 'spirit_skroutzfeed_' . $websiteId;
@@ -208,15 +211,25 @@ class Generator
             'missing' => [],
             'error' => null,
         ];
+        $previous = $this->state->getReport($websiteId) ?? [];
         $media = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
+        $name = $this->config->getFileName($website) . '.xml';
+        $file = self::DIRECTORY . '/' . $name;
+        $temporary = self::DIRECTORY . '/.' . $name . '.tmp';
+        $gzTemporary = self::DIRECTORY . '/.' . $name . '.gz.tmp';
         $this->emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
         try {
+            $clash = $this->config->getFileNameClash($website);
+            if ($clash) {
+                throw new LocalizedException(__(
+                    'Website "%1" writes its feed to the same file, %2: give each website its own file name.',
+                    $clash->getCode(),
+                    $name
+                ));
+            }
             $this->config->setStore($storeId);
             $this->attributeValue->setStore($storeId);
             $this->categoryTree->load($store);
-            $name = $this->config->getFileName($website) . '.xml';
-            $file = self::DIRECTORY . '/' . $name;
-            $temporary = self::DIRECTORY . '/.' . $name . '.tmp';
             $media->create(self::DIRECTORY);
             $this->writer->open(
                 $media->getAbsolutePath($temporary),
@@ -224,10 +237,18 @@ class Generator
             );
             $this->writeProducts($store, $report, $progress);
             $this->writer->close();
+            $this->gzip($media, $temporary, $gzTemporary);
+            // Read back what is on disk: a truncated write (full disk) or a broken file fails here
+            $this->verify($media->getAbsolutePath($temporary), $report['products']);
+            $this->verify('compress.zlib://' . $media->getAbsolutePath($gzTemporary), $report['products']);
+            if (!$force) {
+                $this->checkDrop($report['products'], (int)($previous['published'] ?? 0));
+            }
+            $media->renameFile($gzTemporary, $file . '.gz');
             $media->renameFile($temporary, $file);
-            $this->gzip($media, $file, self::DIRECTORY . '/.' . $name . '.gz.tmp');
             $baseUrl = $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA, true);
             $report += [
+                'published' => $report['products'],
                 'url' => $baseUrl . $file,
                 'gz_url' => $baseUrl . $file . '.gz',
                 'size' => (int)($media->stat($file)['size'] ?? 0),
@@ -235,6 +256,13 @@ class Generator
             ];
         } catch (\Throwable $e) {
             $this->writer->abort();
+            foreach ([$temporary, $gzTemporary] as $path) {
+                if ($media->isExist($path)) {
+                    $media->delete($path);
+                }
+            }
+            // The previous feed is still online: keep showing it
+            $report += array_intersect_key($previous, array_flip(['published', 'url', 'gz_url', 'size', 'gz_size']));
             $report['error'] = $e->getMessage();
             $this->logger->error('Skroutz feed of ' . $website->getCode() . ' failed: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -322,7 +350,12 @@ class Generator
     private function check(array &$row, array &$report, array &$ids, array &$variationIds): bool
     {
         $sku = (string)($row['_sku'] ?? '');
-        foreach (self::ESSENTIAL as $field) {
+        $essential = self::ESSENTIAL;
+        if ($this->config->get('feed_products/exclude_no_image')) {
+            // Checked on the row: a configurable without an image of its own may take one from its children
+            $essential[] = 'image';
+        }
+        foreach ($essential as $field) {
             if (($row[$field] ?? null) === null || $row[$field] === '') {
                 $this->miss($report, $field, $sku, 'skipped');
                 return false;
@@ -366,7 +399,7 @@ class Generator
         $key = $type === 'missing' ? $field : $field . ':' . $type;
         $entry = $report['missing'][$key] ?? ['count' => 0, 'samples' => []];
         $entry['count']++;
-        if ($sku !== '' && count($entry['samples']) < self::SAMPLES) {
+        if ($sku !== '' && count($entry['samples']) < self::SAMPLES && !in_array($sku, $entry['samples'], true)) {
             $entry['samples'][] = $sku;
         }
         $report['missing'][$key] = $entry;
@@ -388,17 +421,17 @@ class Generator
     }
 
     /**
-     * Write a gzip copy next to the feed: Skroutz requires compression above 10MB.
+     * Write the gzip copy of a feed: Skroutz requires compression above 10MB.
      *
      * @param WriteInterface $media
      * @param string $file
-     * @param string $temporary
+     * @param string $gzFile
      * @return void
      */
-    private function gzip(WriteInterface $media, string $file, string $temporary): void
+    private function gzip(WriteInterface $media, string $file, string $gzFile): void
     {
         $in = $media->openFile($file, 'r');
-        $out = $media->openFile($temporary, 'w');
+        $out = $media->openFile($gzFile, 'w');
         $deflate = deflate_init(ZLIB_ENCODING_GZIP, ['level' => 6]);
         while (!$in->eof()) {
             $out->write(deflate_add($deflate, $in->read(1048576), ZLIB_NO_FLUSH));
@@ -406,6 +439,70 @@ class Generator
         $out->write(deflate_add($deflate, '', ZLIB_FINISH));
         $in->close();
         $out->close();
-        $media->renameFile($temporary, $file . '.gz');
+    }
+
+    /**
+     * Read a written feed back in full: it must be well-formed XML holding every product written.
+     *
+     * @param string $path
+     * @param int $products
+     * @return void
+     * @throws LocalizedException
+     */
+    private function verify(string $path, int $products): void
+    {
+        $reader = new \XMLReader();
+        $useErrors = libxml_use_internal_errors(true);
+        $found = 0;
+        try {
+            if (!$reader->open($path, null, LIBXML_NONET)) {
+                throw new LocalizedException(__('The new feed cannot be read back; the previous one is kept.'));
+            }
+            while ($reader->read()) {
+                if ($reader->nodeType === \XMLReader::ELEMENT && $reader->depth === 2 && $reader->name === 'product') {
+                    $found++;
+                }
+            }
+            $error = libxml_get_last_error();
+            $reader->close();
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($useErrors);
+        }
+        if ($error) {
+            throw new LocalizedException(
+                __('The new feed is not valid XML (%1); the previous one is kept.', trim($error->message))
+            );
+        }
+        if ($found !== $products) {
+            throw new LocalizedException(__(
+                'The new feed holds %1 of the %2 products written; the previous one is kept.',
+                $found,
+                $products
+            ));
+        }
+    }
+
+    /**
+     * The Safety Check: a feed losing too many products at once is not published.
+     *
+     * @param int $products products in the new feed
+     * @param int $published products in the feed online
+     * @return void
+     * @throws LocalizedException
+     */
+    private function checkDrop(int $products, int $published): void
+    {
+        $maxDrop = (int)$this->config->get('feed/max_drop');
+        if ($maxDrop > 0 && $published > 0 && $products < $published * (100 - $maxDrop) / 100) {
+            throw new LocalizedException(__(
+                'The new feed has %1 products against %2 in the feed online, more than %3 percent fewer, so it '
+                . 'was not published and Skroutz keeps the previous one. If the drop is expected, generate it '
+                . 'with "bin/magento spirit:skroutz:feed --force", or lower the Safety Check.',
+                $products,
+                $published,
+                $maxDrop
+            ));
+        }
     }
 }

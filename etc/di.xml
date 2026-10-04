@@ -18,7 +18,7 @@
                 <item name="name" xsi:type="object">SpiritSkroutzFeedNameField</item>
                 <item name="link" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Link</item>
                 <item name="image" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Image</item>
-                <item name="additional_imageurl" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Gallery</item>
+                <item name="additional_image" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Gallery</item>
                 <item name="category" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Category</item>
                 <item name="price_with_vat" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Price</item>
                 <item name="vat" xsi:type="object">Spirit\SkroutzFeed\Model\Field\Vat</item>
@@ -162,6 +162,15 @@
         <arguments>
             <argument name="special" xsi:type="array">
                 <item name="entity_id" xsi:type="string">Product ID (recommended)</item>
+            </argument>
+            <argument name="fixed" xsi:type="boolean">false</argument>
+            <argument name="none" xsi:type="boolean">false</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SpiritSkroutzFeedVariationIdSource" type="Spirit\SkroutzFeed\Model\Config\Source\Attribute">
+        <arguments>
+            <argument name="special" xsi:type="array">
+                <item name="__same" xsi:type="string">Same as Unique ID</item>
             </argument>
             <argument name="fixed" xsi:type="boolean">false</argument>
             <argument name="none" xsi:type="boolean">false</argument>

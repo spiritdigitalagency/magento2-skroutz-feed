@@ -38,7 +38,7 @@ class WriterTest extends TestCase
             '_sku' => 'internal',
             'id' => '12-50',
             'name' => 'Shoe & Co <b>Red</b>',
-            'additional_imageurl' => ['https://x.gr/1.jpg', 'https://x.gr/2.jpg'],
+            'additional_image' => ['https://x.gr/1.jpg', 'https://x.gr/2.jpg'],
             'ean' => null,
             'specifications' => ['Material' => 'Canvas'],
             'variations' => [['variationid' => '13', 'size' => '42', 'quantity' => '0']],
@@ -50,7 +50,7 @@ class WriterTest extends TestCase
         $product = $xml->products->product;
         $this->assertSame('2026-10-04 13:30', (string)$xml->created_at);
         $this->assertSame('Shoe & Co Red', (string)$product->name);
-        $this->assertCount(2, $product->additional_imageurl);
+        $this->assertCount(2, $product->additional_image);
         $this->assertCount(0, $product->ean);
         $this->assertCount(0, $product->_sku);
         $this->assertSame('Canvas', (string)$product->specifications->spec);

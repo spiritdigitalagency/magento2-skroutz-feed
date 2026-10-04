@@ -166,7 +166,7 @@ class Status extends Field
      * @param int $timestamp
      * @return string
      */
-    public function formatTime(int $timestamp): string
+    public function formatTimestamp(int $timestamp): string
     {
         return $this->_localeDate->formatDateTime(
             (new \DateTime())->setTimestamp($timestamp),

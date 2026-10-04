@@ -45,7 +45,8 @@ class Config
 
     /** Attributes never exported as specifications: Skroutz has a field for them, or they are not specs */
     private const NOT_SPECS = ['sku', 'name', 'description', 'short_description', 'price', 'special_price', 'cost',
-        'weight', 'manufacturer', 'color', 'size', 'country_of_manufacture', 'url_key', 'meta_title'];
+        'weight', 'manufacturer', 'color', 'size', 'country_of_manufacture', 'url_key', 'meta_title',
+        'news_from_date', 'news_to_date', 'special_from_date', 'special_to_date'];
 
     /**
      * @var ScopeConfigInterface
@@ -177,16 +178,6 @@ class Config
     }
 
     /**
-     * Minutes between two scheduled generations, 0 when the feed is only generated on demand.
-     *
-     * @return int
-     */
-    public function getFrequency(): int
-    {
-        return (int)$this->scopeConfig->getValue(self::SECTION . '/feed/frequency');
-    }
-
-    /**
      * The feed file name without extension, the website code when none is set.
      *
      * @param WebsiteInterface $website
@@ -201,6 +192,27 @@ class Config
         );
 
         return $name !== '' ? $name : (string)$website->getCode();
+    }
+
+    /**
+     * Another enabled website writing its feed to the same file, if any.
+     *
+     * @param WebsiteInterface $website
+     * @return WebsiteInterface|null
+     */
+    public function getFileNameClash(WebsiteInterface $website): ?WebsiteInterface
+    {
+        $name = $this->getFileName($website);
+        foreach ($this->storeManager->getWebsites() as $other) {
+            if ((int)$other->getId() !== (int)$website->getId()
+                && $this->isEnabled((int)$other->getId())
+                && $this->getFileName($other) === $name
+            ) {
+                return $other;
+            }
+        }
+
+        return null;
     }
 
     /**

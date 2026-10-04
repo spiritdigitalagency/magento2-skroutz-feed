@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace Spirit\SkroutzFeed\Model;
 
+use Magento\Framework\Exception\LocalizedException;
+
 /**
  * Streams feed rows to an XML file, so memory does not grow with the catalog.
  *
@@ -16,7 +18,7 @@ namespace Spirit\SkroutzFeed\Model;
 class Writer
 {
     /** Elements holding URLs: never stripped or truncated */
-    private const URLS = ['link', 'image', 'additional_imageurl'];
+    private const URLS = ['link', 'image', 'additional_image'];
 
     /** Elements that keep their line breaks */
     private const MULTILINE = ['description'];
@@ -45,11 +47,15 @@ class Writer
      * @param string $path absolute path
      * @param string $createdAt e.g. "2026-10-04 13:30"
      * @return void
+     * @throws LocalizedException when the file cannot be created
      */
     public function open(string $path, string $createdAt): void
     {
-        $this->xml = new \XMLWriter();
-        $this->xml->openUri($path);
+        $xml = new \XMLWriter();
+        if (!$xml->openUri($path)) {
+            throw new LocalizedException(__('Cannot write the feed file %1.', $path));
+        }
+        $this->xml = $xml;
         $this->xml->startDocument('1.0', 'UTF-8');
         $this->xml->startElement('mywebstore');
         $this->xml->writeElement('created_at', $createdAt);
@@ -100,10 +106,8 @@ class Writer
      */
     public function abort(): void
     {
-        if ($this->xml) {
-            $this->xml->flush();
-            $this->xml = null;
-        }
+        // Releasing the writer closes the file; what it holds is a temporary file deleted by the caller
+        $this->xml = null;
     }
 
     /**

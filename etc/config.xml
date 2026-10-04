@@ -13,10 +13,11 @@
                 <status>0</status>
                 <store/>
                 <filename/>
-                <frequency>60</frequency>
+                <schedule>50 6-23 * * *</schedule>
+                <max_drop>50</max_drop>
             </feed>
             <feed_products>
-                <exclude_no_image>1</exclude_no_image>
+                <exclude_no_image>0</exclude_no_image>
                 <category_filter>exclude</category_filter>
                 <categories/>
                 <single_size>0</single_size>
@@ -30,6 +31,7 @@
             </feed_stock>
             <feed_mapping>
                 <id>entity_id</id>
+                <variation_id>__same</variation_id>
                 <name>name</name>
                 <description>description</description>
                 <category>__auto</category>

@@ -33,15 +33,20 @@
                 </field>
                 <field id="filename" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>File Name</label>
-                    <comment><![CDATA[Without extension. Empty: the website code. The feed is written to pub/media/skroutz/&lt;name&gt;.xml and .xml.gz.]]></comment>
+                    <comment><![CDATA[Without extension, different for each website. Empty: the website code. The feed is written to pub/media/skroutz/&lt;name&gt;.xml and .xml.gz.]]></comment>
                     <depends>
                         <field id="status">1</field>
                     </depends>
                 </field>
-                <field id="frequency" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Regenerate</label>
-                    <source_model>Spirit\SkroutzFeed\Model\Config\Source\Frequency</source_model>
-                    <comment><![CDATA[Needs Magento cron. Skroutz requires at least one update a day; every hour keeps prices and stock accurate for Skroutz Marketplace orders.]]></comment>
+                <field id="schedule" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Schedule</label>
+                    <backend_model>Spirit\SkroutzFeed\Model\Config\Backend\Schedule</backend_model>
+                    <comment><![CDATA[When Magento cron generates the feeds: a cron expression in the time zone of the store. The default, 50 6-23 * * *, generates them at 06:50, 07:50 ... 23:50, ready before every full hour from 07:00 to midnight. Every hour: 0 * * * *. Every 30 minutes: */30 * * * *. Empty: only with "Generate now". Skroutz requires at least one update a day.]]></comment>
+                </field>
+                <field id="max_drop" translate="label comment" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Safety Check (%)</label>
+                    <validate>validate-digits validate-digits-range digits-range-0-100</validate>
+                    <comment><![CDATA[A new feed with this percentage fewer products than the one online is not published: the previous feed stays, so a fault never takes your products off Skroutz. 0 turns the check off. An incomplete or broken feed is never published, whatever this setting.]]></comment>
                 </field>
                 <field id="status_info" translate="label" type="button" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Feed</label>
@@ -57,6 +62,12 @@
                     <frontend_model>Spirit\SkroutzFeed\Block\Adminhtml\System\Config\UniqueId</frontend_model>
                     <validate>required-entry</validate>
                     <comment><![CDATA[Must never change for a product and never be reused: changing it makes Skroutz see every product as new. Skroutz Analytics must send the same attribute with orders.]]></comment>
+                </field>
+                <field id="variation_id" translate="label comment" type="select" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Variation ID</label>
+                    <source_model>SpiritSkroutzFeedVariationIdSource</source_model>
+                    <validate>required-entry</validate>
+                    <comment><![CDATA[The Unique ID of each size in &lt;variations&gt;. Keep the attribute an existing feed already uses for sizes (often the SKU of the child), or Skroutz sees every size as new and orders imported by it stop matching.]]></comment>
                 </field>
                 <field id="name" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Name</label>
@@ -248,7 +259,7 @@
                 <field id="exclude_no_image" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Exclude Products Without Image</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment><![CDATA[The image is required by Skroutz.]]></comment>
+                    <comment><![CDATA[Skroutz requires an image and marks products without one "to be fixed". No: they are listed, and the report names them.]]></comment>
                 </field>
                 <field id="category_filter" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Category Filter</label>
@@ -258,7 +269,7 @@
                     <label>Categories</label>
                     <source_model>Spirit\SkroutzFeed\Model\Config\Source\Categories</source_model>
                     <can_be_empty>1</can_be_empty>
-                    <comment><![CDATA[Subcategories are included. A single product is excluded with its "Exclude from Skroutz" attribute. Disabled and not visible products, bundles and grouped products are never listed.]]></comment>
+                    <comment><![CDATA[Subcategories are included. A single product is excluded with its "Exclude from Skroutz" attribute. Disabled and not visible products, bundles and grouped products are never listed, and children of configurable products only as variations of their parent.]]></comment>
                 </field>
                 <field id="single_size" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Do Not Nest a Single Size</label>

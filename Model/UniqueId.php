@@ -20,6 +20,9 @@ use Magento\Framework\Module\Manager as ModuleManager;
  */
 class UniqueId
 {
+    /** "Variation ID" setting: the Unique ID attribute */
+    public const SAME = '__same';
+
     /**
      * @var Config
      */
@@ -76,9 +79,31 @@ class UniqueId
      */
     public function get(Product $product): string
     {
-        $code = $this->getAttributeCode();
+        return $this->value($product, $this->getAttributeCode());
+    }
 
-        return trim((string)($code === 'entity_id' ? $product->getId() : $product->getData($code)));
+    /**
+     * The attribute holding the Unique ID of size variations: "Variation ID", by default the Unique ID one.
+     *
+     * @param int|null $storeId defaults to the store view being generated
+     * @return string
+     */
+    public function getVariationAttributeCode(?int $storeId = null): string
+    {
+        $code = (string)$this->config->get('feed_mapping/variation_id', $storeId);
+
+        return $code === '' || $code === self::SAME ? $this->getAttributeCode($storeId) : $code;
+    }
+
+    /**
+     * The Unique ID of a size variation (a child nested in <variations>), '' when the attribute is empty.
+     *
+     * @param Product $child
+     * @return string
+     */
+    public function getForVariation(Product $child): string
+    {
+        return $this->value($child, $this->getVariationAttributeCode());
     }
 
     /**
@@ -94,5 +119,17 @@ class UniqueId
     public function getForVariant(Product $parent, array $optionIds): string
     {
         return implode('-', array_merge([$this->get($parent)], array_values($optionIds)));
+    }
+
+    /**
+     * The value of an ID attribute.
+     *
+     * @param Product $product
+     * @param string $code
+     * @return string
+     */
+    private function value(Product $product, string $code): string
+    {
+        return trim((string)($code === 'entity_id' ? $product->getId() : $product->getData($code)));
     }
 }

@@ -8,8 +8,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="spirit_skroutzfeed">
-        <!-- Runs every minute but only generates a store's feed when it is due or was requested from the admin -->
+        <!-- The feeds of every enabled website, at the "Schedule" setting (a cron expression in the store time zone) -->
         <job name="spirit_skroutzfeed_generate" instance="Spirit\SkroutzFeed\Cron\Generate" method="execute">
+            <config_path>spirit_skroutz/feed/schedule</config_path>
+        </job>
+        <!-- "Generate now" from the admin, within a minute -->
+        <job name="spirit_skroutzfeed_requests" instance="Spirit\SkroutzFeed\Cron\Generate" method="executeRequests">
             <schedule>* * * * *</schedule>
         </job>
     </group>

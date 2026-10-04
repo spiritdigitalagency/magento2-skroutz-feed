@@ -74,7 +74,7 @@ class Generate extends Command
     /**
      * @inheritdoc
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('spirit:skroutz:feed')
             ->setDescription('Generate the Skroutz XML feed of the websites where it is enabled')
@@ -83,6 +83,12 @@ class Generate extends Command
                 'w',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Website code (default: every website with the feed enabled)'
+            )
+            ->addOption(
+                'force',
+                null,
+                InputOption::VALUE_NONE,
+                'Publish even when the Safety Check finds too few products'
             );
         parent::configure();
     }
@@ -90,7 +96,7 @@ class Generate extends Command
     /**
      * @inheritdoc
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
             $this->appState->setAreaCode(Area::AREA_CRONTAB);
@@ -116,7 +122,7 @@ class Generate extends Command
             try {
                 $report = $this->generator->generate($website, function (int $products) use ($output): void {
                     $output->write(sprintf("\r  %d products", $products));
-                });
+                }, (bool)$input->getOption('force'));
             } catch (\Throwable $e) {
                 $output->writeln(sprintf("\n  <error>%s</error>", $e->getMessage()));
                 $failed = true;

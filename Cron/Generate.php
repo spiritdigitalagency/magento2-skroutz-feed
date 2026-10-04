@@ -14,7 +14,7 @@ use Spirit\SkroutzFeed\Model\Generator;
 use Spirit\SkroutzFeed\Model\State;
 
 /**
- * Every minute: generate the feeds that are due by frequency or were requested from the admin.
+ * Generates the feeds on schedule, and those requested with "Generate now".
  */
 class Generate
 {
@@ -65,24 +65,41 @@ class Generate
     }
 
     /**
-     * Generate the due feeds.
+     * The scheduled run: the feeds of every enabled website.
      *
      * @return void
      */
     public function execute(): void
     {
+        $this->generate(null);
+    }
+
+    /**
+     * Every minute: the feeds requested with "Generate now".
+     *
+     * @return void
+     */
+    public function executeRequests(): void
+    {
         $requested = $this->state->takeRequests();
-        $frequency = $this->config->getFrequency() * 60;
+        if ($requested) {
+            $this->generate($requested);
+        }
+    }
+
+    /**
+     * Generate the feeds of the enabled websites.
+     *
+     * @param int[]|null $websiteIds null for all
+     * @return void
+     */
+    private function generate(?array $websiteIds): void
+    {
         foreach ($this->storeManager->getWebsites() as $website) {
             $websiteId = (int)$website->getId();
-            if (!$this->config->isEnabled($websiteId)) {
-                continue;
-            }
-            $report = $this->state->getReport($websiteId);
-            // ponytail: 30s of slack so a feed due "every hour" does not slip a minute every run
-            $due = in_array($websiteId, $requested, true)
-                || ($frequency > 0 && (!$report || time() - (int)$report['started'] >= $frequency - 30));
-            if (!$due) {
+            if (!$this->config->isEnabled($websiteId)
+                || ($websiteIds !== null && !in_array($websiteId, $websiteIds, true))
+            ) {
                 continue;
             }
             try {

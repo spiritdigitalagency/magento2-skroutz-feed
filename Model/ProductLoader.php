@@ -183,9 +183,6 @@ class ProductLoader
                 ->setOrder('entity_id', Collection::SORT_ORDER_ASC)
                 ->setPageSize($batchSize)
                 ->setCurPage(1);
-            if ($this->config->get('feed_products/exclude_no_image')) {
-                $collection->addAttributeToFilter('image', ['neq' => 'no_selection']);
-            }
             $this->eventManager->dispatch('spirit_skroutzfeed_collection', [
                 'collection' => $collection,
                 'store' => $store,
@@ -196,7 +193,7 @@ class ProductLoader
             }
             $batchCount = count($products);
             $lastId = max(array_map('intval', array_keys($products)));
-            $products = $this->withoutVariants($products, $store);
+            $products = $this->withoutVariants($products);
             $this->prepare($products, $store);
             $this->categoryTree->assign($products);
             $this->loadUrls($products, (int)$store->getId());
@@ -228,7 +225,7 @@ class ProductLoader
     {
         $attributes = array_merge(
             $this->config->getAttributes(),
-            [$this->uniqueId->getAttributeCode()],
+            [$this->uniqueId->getAttributeCode(), $this->uniqueId->getVariationAttributeCode()],
             $extraAttributes
         );
         $collection = $this->collectionFactory->create()
@@ -248,16 +245,15 @@ class ProductLoader
     }
 
     /**
-     * Drop simple products that are exported as variations of a configurable.
+     * Drop the children of configurable products: they are listed only as variations of their parent.
      *
-     * A child stays a product of its own when none of its configurables is listed (disabled, not visible
-     * or not in the website), so it is never exported twice and never lost.
+     * A child of a disabled or hidden configurable is not listed on its own either: whoever turned the
+     * configurable off meant the whole product.
      *
      * @param Product[] $products
-     * @param StoreInterface $store
      * @return Product[]
      */
-    private function withoutVariants(array $products, StoreInterface $store): array
+    private function withoutVariants(array $products): array
     {
         $simpleIds = [];
         foreach ($products as $id => $product) {
@@ -268,32 +264,15 @@ class ProductLoader
         if (!$simpleIds) {
             return $products;
         }
-        $linkField = $this->metadataPool->getMetadata(ProductInterface::class)->getLinkField();
         $connection = $this->resource->getConnection();
-        $links = $connection->fetchAll(
+        $childIds = $connection->fetchCol(
             $connection->select()
-                ->from(['link' => $this->resource->getTableName('catalog_product_super_link')], ['product_id'])
-                ->join(
-                    ['parent' => $this->resource->getTableName('catalog_product_entity')],
-                    'parent.' . $linkField . ' = link.parent_id',
-                    ['parent_id' => 'parent.entity_id']
-                )
-                ->where('link.product_id IN (?)', $simpleIds)
+                ->distinct()
+                ->from($this->resource->getTableName('catalog_product_super_link'), ['product_id'])
+                ->where('product_id IN (?)', $simpleIds)
         );
-        if (!$links) {
-            return $products;
-        }
-        $listedParents = array_flip($this->createCollection($store)
-            ->addAttributeToFilter('visibility', ['in' => self::VISIBLE])
-            ->addAttributeToFilter('entity_id', ['in' => array_unique(array_column($links, 'parent_id'))])
-            ->getAllIds());
-        foreach ($links as $link) {
-            if (isset($listedParents[$link['parent_id']])) {
-                unset($products[$link['product_id']]);
-            }
-        }
 
-        return $products;
+        return array_diff_key($products, array_flip($childIds));
     }
 
     /**

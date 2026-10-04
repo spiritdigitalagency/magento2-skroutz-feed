@@ -32,9 +32,9 @@ settings are on the same page.
 
 | Group | Settings |
 |---|---|
-| XML Feed | Enable per website, store view (language, names, links), file name, frequency, feed URLs, last report, "Generate now" |
-| Field Mapping | The attribute (or fixed value) of every Skroutz field, color and size attributes, shipping cost, specifications |
-| Products and Variations | Exclude products without image, category filter (exclude or include only), one product per color |
+| XML Feed | Enable per website, store view (language, names, links), file name, schedule, Safety Check, feed URLs, last report, "Generate now" |
+| Field Mapping | Unique ID and Variation ID, the attribute (or fixed value) of every Skroutz field, color and size attributes, shipping cost, specifications |
+| Products and Variations | Exclude products without image (off by default), category filter (exclude or include only), one product per color |
 | Availability and Stock | Availability text (or "Hide from Skroutz") for in stock, backorder and out of stock products |
 
 Per product, in the "Skroutz" group of the product form, at website scope:
@@ -51,8 +51,9 @@ feed is larger than 10MB. The admin shows both URLs.
 ### What is listed
 
 Simple and configurable products that are enabled, visible and in the website. Bundle, grouped, virtual and
-downloadable products are not: Skroutz cannot list them correctly. A simple product that is a child of a listed
-configurable appears only as its variation.
+downloadable products are not: Skroutz cannot list them correctly. A simple product that is a child of a
+configurable appears only as its variation, never on its own: when the configurable is disabled or hidden, its
+children are not listed either.
 
 | The configurable varies by | Feed |
 |---|---|
@@ -60,8 +61,13 @@ configurable appears only as its variation.
 | A size attribute only | one product with the parent's Unique ID, sizes in `<variations>` |
 | No size attribute (color only, capacity...) | one product per child, with the child's Unique ID and the parent's details where the child has none |
 
+**Images**: a color takes the images of its children; a child listed on its own, its own images. Where the child
+has none, the parent's are used, and the other way round for a configurable without images of its own.
+
 The option id is the id of the attribute option (e.g. the color "Red"), not its label: renaming a color in the
-admin keeps the Unique ID. With "Do Not Nest a Single Size", "one size" items set up as configurable products are
+admin keeps the Unique ID. Each size in `<variations>` has the child's "Variation ID", by default the same
+attribute as the Unique ID; a shop moving from another feed keeps the one that feed used for sizes (often the
+child's SKU), so Skroutz sees no size as new. With "Do Not Nest a Single Size", "one size" items set up as configurable products are
 written as plain products, without `<variations>`.
 
 Links of colors and sizes preselect the option on the product page (`product.html#93=50`). "Variant Name" sets
@@ -94,18 +100,31 @@ specifications or add computed ones (see below).
 
 ### Generation
 
-Magento cron generates the feeds at the chosen frequency, in its own cron group (`spirit_skroutzfeed`) running in
-a separate process, so a long run never delays the other cron jobs. "Generate now" asks cron to start within a
+Magento cron generates the feeds of every enabled website at the "Schedule" setting, a cron expression in the time
+zone of the store. The default, `50 6-23 * * *`, generates them at 06:50, 07:50 ... 23:50, so a fresh feed is ready
+before every full hour from 07:00 to midnight. The jobs run in their own cron group (`spirit_skroutzfeed`), in a
+separate process, so a long run never delays the other cron jobs. "Generate now" asks cron to start within a
 minute. From the command line:
 
 ```
-php bin/magento spirit:skroutz:feed [--website=base]
+php bin/magento spirit:skroutz:feed [--website=base] [--force]
 ```
 
-The feed is written to a temporary file and renamed when complete: Skroutz never reads a half written feed, and
-a failed run keeps the previous one and adds an admin notification. While a long generation runs, Magento may log
-`Could not acquire lock for cron job: spirit_skroutzfeed_generate`: that is the next minute's run waiting, as
-intended.
+The feed online is only ever replaced by a complete, checked one:
+
+1. The `.xml` and `.xml.gz` are written under temporary names next to the feed online.
+2. Both are read back in full: they must be well-formed XML holding every product written. A full disk or a
+   killed process fails here, or never gets this far.
+3. **Safety Check**: a new feed with more than the set percentage fewer products than the one online (50% by
+   default) is not published. `--force` publishes it anyway, for an expected drop.
+4. Only then are both renamed over the feed online, which is atomic: Skroutz downloads either the old file or the
+   new one, never a mix.
+
+Any failure keeps the previous feed online, removes the temporary files and adds an admin notification; the
+report shows the error. Two websites can never write to the same file. `<created_at>` at the top of the feed is
+the time of the generation, in the store's time zone. While a long generation runs, Magento may log
+`Could not acquire lock for cron job: spirit_skroutzfeed_requests`: that is the next minute's check for
+"Generate now" waiting, as intended.
 
 ## Skroutz Analytics
 
@@ -120,8 +139,8 @@ and the feed section warns when the two cannot match:
 
 ## For developers
 
-**Change the Unique ID.** Every ID of the feed (products, colors, variations) comes from
-`Spirit\SkroutzFeed\Model\UniqueId` (`get()` and `getForVariant()`). Add a plugin:
+**Change the Unique ID.** Every ID of the feed comes from `Spirit\SkroutzFeed\Model\UniqueId`: `get()` for
+products, `getForVariant()` for colors and `getForVariation()` for sizes. Add a plugin:
 
 ```xml
 <type name="Spirit\SkroutzFeed\Model\UniqueId">

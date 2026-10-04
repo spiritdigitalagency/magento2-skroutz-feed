@@ -27,8 +27,8 @@ class RowBuilder
 {
     public const SUPER_ATTRIBUTES = 'skroutz_super_attributes';
 
-    /** Fields a child row never borrows from its parent */
-    private const OWN_FIELDS = ['id', 'ean'];
+    /** Fields a child row never borrows from its parent; its gallery goes with its image */
+    private const OWN_FIELDS = ['id', 'ean', 'additional_image'];
 
     /**
      * @var Config
@@ -172,11 +172,14 @@ class RowBuilder
             $colors = array_intersect($options, $this->config->getCodes('color'));
             $row['color'] = $colors ? $this->labels($first, $colors, ' / ') : null;
             $row['link'] = $this->withOptions($row['link'], $optionIds);
+        }
+        // The images of the color; for sizes only, those of the parent unless it has none
+        if ($optionIds || ($row['image'] ?? null) === null) {
             foreach ($group as $child) {
                 $image = $this->value('image', $child);
                 if ($image !== null) {
                     $row['image'] = $image;
-                    $row['additional_imageurl'] = $this->value('additional_imageurl', $child);
+                    $row['additional_image'] = $this->value('additional_image', $child);
                     break;
                 }
             }
@@ -210,7 +213,7 @@ class RowBuilder
             }
             $sizeLabels[] = $size;
             $variations[] = array_filter([
-                'variationid' => $this->value('id', $child),
+                'variationid' => $this->uniqueId->getForVariation($child),
                 'link' => $this->withOptions($row['link'], $optionIds + $sizeOptions),
                 'availability' => $this->value('availability', $child),
                 'manufacturersku' => $this->value('mpn', $child) ?? $row['mpn'],
@@ -265,10 +268,19 @@ class RowBuilder
         $rows = [];
         foreach ($children as $child) {
             $row = $this->row($child);
+            if (($row['image'] ?? null) === null) {
+                // No image of its own: the parent's image and gallery
+                $row['image'] = $parentRow['image'] ?? null;
+                $row['additional_image'] = $parentRow['additional_image'] ?? null;
+            }
             foreach ($parentRow as $name => $value) {
                 if (!$this->isFilled($row[$name] ?? null) && !in_array($name, self::OWN_FIELDS, true)) {
                     $row[$name] = $value;
                 }
+            }
+            // Spec by spec: the parent usually holds most of them
+            if (is_array($parentRow['specifications'] ?? null) && is_array($row['specifications'])) {
+                $row['specifications'] = array_replace($parentRow['specifications'], $row['specifications']);
             }
             $options = [];
             foreach ($super as $attributeId => $code) {

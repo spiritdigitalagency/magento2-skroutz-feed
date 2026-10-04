@@ -50,7 +50,7 @@ $websites = $block->getWebsites();
                 <?php endif; ?>
                 <p><?= $escaper->escapeHtml(__(
                     'Last generation: %1, %2 products and %3 variations in %4 seconds.',
-                    $block->formatTime((int)$report['started']),
+                    $block->formatTimestamp((int)$report['started']),
                     $report['products'],
                     $report['variations'],
                     $report['duration'] ?? 0
